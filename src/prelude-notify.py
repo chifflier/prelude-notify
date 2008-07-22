@@ -24,6 +24,7 @@ def _expire_cb(item):
 
 thresholding = threshold.Threshold(_expire_cb)
 
+config = pnconfig.PnConfig()
 
 c = PreludeEasy.ClientEasy("prelude-notify", PreludeEasy.Client.IDMEF_READ)
 c.SetFlags(PreludeEasy.Client.CONNECT)
