@@ -29,7 +29,9 @@ config = pnconfig.PnConfig()
 c = PreludeEasy.ClientEasy("prelude-notify", PreludeEasy.Client.IDMEF_READ)
 c.SetFlags(PreludeEasy.Client.CONNECT)
 pool = c.GetConnectionPool()
-pool.AddConnection(Connection("127.0.0.1"))
+manager_addresses = config.get("manager", "addresses").split(',')
+for addr in manager_addresses:
+	pool.AddConnection(Connection(addr))
 
 c.Start()
 
