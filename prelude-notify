@@ -17,7 +17,7 @@ def _expire_cb(item):
     else:
         cstr = ""
 
-    imageuri = "file://" + pnconfig.themespath + config.get("ui", "theme") + "/high.png"
+    imageuri = "file://" + pnconfig.themespath + config.get("ui", "theme") + "/" + idmef.Get("alert.assessment.impact.severity") + ".png"
 
     Notify.run(imageuri, cstr + (idmef.Get("alert.source(0).node.address(0).address") or "(unknown)"),
                idmef.Get("alert.classification.text"))
