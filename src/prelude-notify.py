@@ -18,7 +18,7 @@ def _expire_cb(item):
     else:
         cstr = ""
 
-    Notify.run(cstr + idmef.Get("alert.source(0).node.address(0).address") or "(unknown)",
+    Notify.run(cstr + (idmef.Get("alert.source(0).node.address(0).address") or "(unknown)"),
                idmef.Get("alert.classification.text"))
 
 
