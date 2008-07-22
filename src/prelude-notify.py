@@ -5,6 +5,7 @@ from PreludeEasy import ConnectionPool, Connection
 import gobject, gtk
 
 import notifyaction
+import pnstatusicon
 import pnconfig
 
 
@@ -25,8 +26,7 @@ def PollIDMEF():
 				idmef.Get("alert.classification.text"))
 	return 1
 
-#print pnconfig.iconok
-icon = gtk.status_icon_new_from_file(pnconfig.iconok)
+statusicon = pnstatusicon.PreludeStatusIcon()
 gobject.idle_add(PollIDMEF)
 gtk.main()
 
