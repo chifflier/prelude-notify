@@ -12,10 +12,12 @@ class Threshold:
 
     def _timer_cb(self, item):
         self._expire_cb(item)
+        self._limited.pop(item.key)
         return False
 
     def _newEntry(self, key, idmef):
         item = self._limited[key] = ThresholdItem()
+        item.key = key
         item.count = 1
         item.idmef = idmef
         item.timer = gobject.timeout_add(self._timeout * 1000, self._timer_cb, item)
