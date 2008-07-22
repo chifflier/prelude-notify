@@ -1,8 +1,9 @@
 import os
+from PreludeNotify import siteconfig
 from ConfigParser import SafeConfigParser
 
-iconok = "../pixmaps/tray/brouette-ok-icon.png"
-themespath = "/usr/local/share/prelude-notify/themes/"
+iconok = siteconfig.prefix + "/share/prelude-notify/tray/brouette-ok-icon.png"
+themespath = siteconfig.prefix + "/share/prelude-notify/themes/"
 
 class PnConfig():
 	cp = SafeConfigParser()
