@@ -17,10 +17,17 @@ def _expire_cb(item):
     else:
         cstr = ""
 
-    imageuri = "file://" + pnconfig.themespath + config.get("ui", "theme") + "/" + idmef.Get("alert.assessment.impact.severity") + ".png"
+    severity = idmef.Get("alert.assessment.impact.severity")
+    if severity:
+        imageuri = "file://" + pnconfig.themespath + config.get("ui", "theme") + "/" + severity + ".png"
+    else:
+        imageuri = None
 
-    Notify.run(imageuri, cstr + (idmef.Get("alert.source(0).node.address(0).address") or "(unknown)"),
-               idmef.Get("alert.classification.text"))
+    src = cstr + (idmef.Get("alert.source(0).node.address(0).address") or "(unknown)")
+    cl = idmef.Get("alert.classification.text") or "(unknown)"
+    desc = idmef.Get("alert.assessment.impact.description") or "(unknown)"
+
+    Notify.run(imageuri, src, "<b>" + cl + "</b>\n" + desc)
 
 
 thresholding = threshold.Threshold(_expire_cb)
@@ -31,7 +38,7 @@ c.SetFlags(PreludeEasy.Client.CONNECT)
 pool = c.GetConnectionPool()
 manager_addresses = config.get("manager", "addresses").split(',')
 for addr in manager_addresses:
-	pool.AddConnection(Connection(addr))
+        pool.AddConnection(Connection(addr))
 
 c.Start()
 
