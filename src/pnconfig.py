@@ -2,12 +2,12 @@ import os
 from ConfigParser import SafeConfigParser
 
 iconok = "../pixmaps/tray/brouette-ok-icon.png"
-themespath = "../pixmaps/themes/"
+themespath = "/usr/local/share/prelude-notify/themes/"
 
 class PnConfig():
 	cp = SafeConfigParser()
 	def __init__(self):
-		configname = "%s/.prelude-notify.rc" % os.getenv("HOME")
+		configname = "%s/.prelude-notifyrc" % os.getenv("HOME")
 		if not os.path.exists(configname):
 			# Write the default configuration file
 			FILE = open(configname,"w")
@@ -21,6 +21,7 @@ class PnConfig():
 			FILE.write("[ui]\n")
 			FILE.write("theme=default\n")
 			FILE.close()
+			self.cp.read(configname)
 		else:
 			self.cp.read(configname)
 

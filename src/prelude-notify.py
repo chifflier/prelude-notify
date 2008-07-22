@@ -9,6 +9,7 @@ import pnstatusicon
 import pnconfig, threshold
 
 Notify = notifyaction.PreludeNotify()
+config = pnconfig.PnConfig()
 
 def _expire_cb(item):
     idmef = item.idmef
@@ -18,13 +19,14 @@ def _expire_cb(item):
     else:
         cstr = ""
 
-    Notify.run(cstr + (idmef.Get("alert.source(0).node.address(0).address") or "(unknown)"),
+    imageuri = "file://" + pnconfig.themespath + config.get("ui", "theme") + "/high.png"
+
+    Notify.run(imageuri, cstr + (idmef.Get("alert.source(0).node.address(0).address") or "(unknown)"),
                idmef.Get("alert.classification.text"))
 
 
 thresholding = threshold.Threshold(_expire_cb)
 
-config = pnconfig.PnConfig()
 
 c = PreludeEasy.ClientEasy("prelude-notify", PreludeEasy.Client.IDMEF_READ)
 c.SetFlags(PreludeEasy.Client.CONNECT)
