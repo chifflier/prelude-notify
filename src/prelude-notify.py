@@ -46,7 +46,7 @@ def PollIDMEF():
 
         return 1
 
-statusicon = pnstatusicon.PreludeStatusIcon()
+statusicon = pnstatusicon.PreludeStatusIcon(config)
 gobject.idle_add(PollIDMEF)
 gtk.main()
 

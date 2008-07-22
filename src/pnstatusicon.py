@@ -8,9 +8,10 @@ class PreludeStatusIcon():
 	manager_addr_entry = gtk.Entry()
 	theme_entry        = gtk.Entry()
 
-	def __init__(self):
+	def __init__(self, config):
 		icon = gtk.status_icon_new_from_file(pnconfig.iconok)
 		icon.connect('popup-menu', self.menu)
+		self.config = config
 
 	def menu(self, icon, event_button, event_time):
 		m = gtk.Menu()
@@ -44,18 +45,23 @@ class PreludeStatusIcon():
 
 		label = gtk.Label("Profile: ")
 		table.attach(label, 0, 1, 0, 1)
+		self.profile_entry.set_text(self.config.get("idmef", "profile"))
 		table.attach(self.profile_entry, 1, 2, 0, 1)
-		label = gtk.Label("Manager Address: ")
+		label = gtk.Label("Manager Addresses: ")
 		table.attach(label, 0, 1, 1, 2)
+		self.manager_addr_entry.set_text(self.config.get("manager", "addresses"))
 		table.attach(self.manager_addr_entry, 1, 2, 1, 2)
 		label = gtk.Label("IDMEF filter: ")
 		table.attach(label, 0, 1, 2, 3)
+		self.idmef_filter_entry.set_text(self.config.get("idmef", "filter"))
 		table.attach(self.idmef_filter_entry, 1, 2, 2, 3)
 		label = gtk.Label("Prewikka URL: ")
 		table.attach(label, 0, 1, 3, 4)
+		self.prewikka_url_entry.set_text(self.config.get("prewikka", "url"))
 		table.attach(self.prewikka_url_entry, 1, 2, 3, 4)
 		label = gtk.Label("Theme: ")
 		table.attach(label, 0, 1, 4, 5)
+		self.theme_entry.set_text(self.config.get("ui", "theme"))
 		table.attach(self.theme_entry, 1, 2, 4, 5)
 
 		dialog.show_all()
