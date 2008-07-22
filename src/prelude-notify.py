@@ -2,42 +2,31 @@
 
 import PreludeEasy
 from PreludeEasy import ConnectionPool, Connection
-import threading
-import gtk
+import gobject, gtk
 
 import notifyaction
 import pnconfig
 
-gtk.gdk.threads_init()
-
 
 Notify = notifyaction.PreludeNotify()
 
-class PreludeEventReader(threading.Thread):
-        c = PreludeEasy.ClientEasy("prelude-notify", PreludeEasy.Client.IDMEF_READ)
-        stopthread = threading.Event()
-        def __init__(self, addr):
-                threading.Thread.__init__(self)
-                self.c.SetFlags(PreludeEasy.Client.CONNECT)
-                pool = self.c.GetConnectionPool()
-                pool.AddConnection(Connection(addr))
+c = PreludeEasy.ClientEasy("prelude-notify", PreludeEasy.Client.IDMEF_READ)
+c.SetFlags(PreludeEasy.Client.CONNECT)
+pool = c.GetConnectionPool()
+pool.AddConnection(Connection("127.0.0.1"))
 
-        def run(self):
-                self.c.Start()
-                while not self.stopthread.isSet():
-                        idmef = PreludeEasy.IDMEF()
-                        ret = self.c.RecvIDMEF(idmef)
-                        Notify.run(idmef.Get("alert.source(0).node.address(0).address") or "(unknown)",
-                                        idmef.Get("alert.classification.text"))
+c.Start()
 
-        def stop(self):
-                self.stopthread.set()
+def PollIDMEF(self):
+	idmef = PreludeEasy.IDMEF()
+	ret = c.RecvIDMEF(idmef)
+	if ret:
+		Notify.run(idmef.Get("alert.source(0).node.address(0).address") or "(unknown)",
+				idmef.Get("alert.classification.text"))
+	return 1
 
-
-per = PreludeEventReader("192.168.0.10")
-per.start()
-
-print pnconfig.iconok
+#print pnconfig.iconok
 icon = gtk.status_icon_new_from_file(pnconfig.iconok)
+gobject.idle_add(PollIDMEF, 1)
 gtk.main()
 
