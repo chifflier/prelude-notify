@@ -4,9 +4,7 @@ import PreludeEasy
 from PreludeEasy import ConnectionPool, Connection
 import gobject, gtk
 
-import notifyaction
-import pnstatusicon
-import pnconfig, threshold
+from PreludeNotify import notifyaction, pnstatusicon, pnconfig, threshold
 
 Notify = notifyaction.PreludeNotify()
 config = pnconfig.PnConfig()
