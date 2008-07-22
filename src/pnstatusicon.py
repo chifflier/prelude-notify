@@ -29,7 +29,12 @@ class PreludeStatusIcon():
 		print "Run the configure window"
 
 	def about(self, data):
-		print "Run the about window"
+		dialog = gtk.AboutDialog()
+		dialog.set_program_name("Prelude Notify")
+		dialog.set_copyright("Sebastien Tricaud (c) 2008")
+		dialog.set_comments("Systray Notification for Prelude IDS")
+		dialog.run()
+		dialog.destroy()
 
 	def quit(self, data):
 		gtk.main_quit()
