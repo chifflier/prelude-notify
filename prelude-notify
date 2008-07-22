@@ -2,7 +2,7 @@
 
 import PreludeEasy
 from PreludeEasy import ConnectionPool, Connection
-import gobject, gtk
+import gobject, gtk, pynotify
 
 from PreludeNotify import notifyaction, pnstatusicon, pnconfig, threshold
 
@@ -12,12 +12,28 @@ config = pnconfig.PnConfig()
 def _expire_cb(item):
     idmef = item.idmef
 
+    if idmef.Get("heartbeat"):
+        return
+
     if item.count > 1:
         cstr = "%d x " % item.count
     else:
         cstr = ""
 
+    baseuri = "file://" + pnconfig.themespath + config.get("ui", "theme") + "/"
     severity = idmef.Get("alert.assessment.impact.severity")
+
+    urgency = None
+    imageuri = None
+    for i in (("high", pynotify.URGENCY_CRITICAL),
+              ("medium", pynotify.URGENCY_NORMAL),
+              ("low", pynotify.URGENCY_LOW),
+              ("info", None)):
+        if severity == i[0]:
+            imageuri = baseuri + i[0] + ".png"
+            urgency = i[1]
+            break
+
     if severity:
         imageuri = "file://" + pnconfig.themespath + config.get("ui", "theme") + "/" + severity + ".png"
     else:
@@ -27,7 +43,7 @@ def _expire_cb(item):
     cl = idmef.Get("alert.classification.text") or "(unknown)"
     desc = idmef.Get("alert.assessment.impact.description") or "(unknown)"
 
-    Notify.run(imageuri, src, "<b>" + cl + "</b>\n" + desc)
+    Notify.run(imageuri, urgency, src, "<b>" + cl + "</b>\n" + desc)
 
 
 thresholding = threshold.Threshold(_expire_cb)
