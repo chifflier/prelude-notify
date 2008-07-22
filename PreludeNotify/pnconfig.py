@@ -6,11 +6,12 @@ themespath = "/usr/local/share/prelude-notify/themes/"
 
 class PnConfig():
 	cp = SafeConfigParser()
+	configname = ""
 	def __init__(self):
-		configname = "%s/.prelude-notifyrc" % os.getenv("HOME")
-		if not os.path.exists(configname):
+		self.configname = "%s/.prelude-notifyrc" % os.getenv("HOME")
+		if not os.path.exists(self.configname):
 			# Write the default configuration file
-			FILE = open(configname,"w")
+			FILE = open(self.configname,"w")
 			FILE.write("[idmef]\n")
 			FILE.write("profile=prelude-notify\n")
 			FILE.write("filter=\n\n")
@@ -21,9 +22,16 @@ class PnConfig():
 			FILE.write("[ui]\n")
 			FILE.write("theme=default\n")
 			FILE.close()
-			self.cp.read(configname)
+			self.cp.read(self.configname)
 		else:
-			self.cp.read(configname)
+			self.cp.read(self.configname)
 
 	def get(self, section, key):
 		return self.cp.get(section, key)
+
+	def set(self, section, key, value):
+		self.cp.set(section, key, value)
+		FILE = open(self.configname,"w")
+		self.cp.write(FILE)
+		FILE.close()
+

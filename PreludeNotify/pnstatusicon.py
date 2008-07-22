@@ -68,9 +68,11 @@ class PreludeStatusIcon():
 		response = dialog.run()
 
 		if response == gtk.RESPONSE_OK:
-			print "OK"
-            		#self.entry1.set_text(local_entry1.get_text())
-            		#self.entry2.set_text(local_entry2.get_text())
+			self.config.set("idmef", "profile", self.profile_entry.get_text())
+			self.config.set("manager", "addresses", self.manager_addr_entry.get_text())
+			self.config.set("idmef", "filter", self.idmef_filter_entry.get_text())
+			self.config.set("prewikka", "url", self.prewikka_url_entry.get_text())
+			self.config.set("ui", "theme", self.theme_entry.get_text())
 
         	dialog.destroy()
 
