@@ -12,9 +12,6 @@ config = pnconfig.PnConfig()
 def _expire_cb(item):
     idmef = item.idmef
 
-    if idmef.Get("heartbeat"):
-        return
-
     if item.count > 1:
         cstr = "%d x " % item.count
     else:
@@ -41,9 +38,14 @@ def _expire_cb(item):
 
     src = cstr + (idmef.Get("alert.source(0).node.address(0).address") or "(unknown)")
     cl = idmef.Get("alert.classification.text") or "(unknown)"
-    desc = idmef.Get("alert.assessment.impact.description") or "(unknown)"
 
-    Notify.run(imageuri, urgency, src, "<b>" + cl + "</b>\n" + desc)
+    desc = idmef.Get("alert.assessment.impact.description")
+    if desc:
+        desc = "<b>" + cl + "</b>\n" + desc
+    else:
+        desc = cl
+
+    Notify.run(imageuri, urgency, src, desc)
 
 
 thresholding = threshold.Threshold(_expire_cb)
@@ -62,7 +64,7 @@ def PollIDMEF():
         idmef = PreludeEasy.IDMEF()
 
         ret = c.RecvIDMEF(idmef, 100)
-        if ret:
+        if ret and not idmef.Get("heartbeat.create_time"):
                 thresholding.thresholdMessage(idmef)
 
         return 1
