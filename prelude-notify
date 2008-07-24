@@ -40,6 +40,9 @@ def _expire_cb(item):
     cl = idmef.Get("alert.classification.text") or "(unknown)"
 
     desc = idmef.Get("alert.assessment.impact.description")
+
+    desc = "<a href=\"" + config.get("prewikka", "url") + "/?view=alert_summary&messageid=" + idmef.Get("alert.messageid") + "\">" + desc + "</a>\n"
+
     if desc:
         desc = "<b>" + cl + "</b>\n" + desc
     else:
@@ -51,7 +54,7 @@ def _expire_cb(item):
 thresholding = threshold.Threshold(_expire_cb)
 
 
-c = PreludeEasy.ClientEasy("prelude-notify", PreludeEasy.Client.IDMEF_READ)
+c = PreludeEasy.ClientEasy(config.get("idmef", "profile"), PreludeEasy.Client.IDMEF_READ)
 c.SetFlags(PreludeEasy.Client.CONNECT)
 pool = c.GetConnectionPool()
 manager_addresses = config.get("manager", "addresses").split(',')
