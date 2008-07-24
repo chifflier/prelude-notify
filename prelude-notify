@@ -41,14 +41,12 @@ def _expire_cb(item):
 
     desc = idmef.Get("alert.assessment.impact.description")
 
-    desc = "<a href=\"" + config.get("prewikka", "url") + "/?view=alert_summary&messageid=" + idmef.Get("alert.messageid") + "\">" + desc + "</a>\n"
-
     if desc:
         desc = "<b>" + cl + "</b>\n" + desc
     else:
         desc = cl
 
-    Notify.run(imageuri, urgency, src, desc)
+    Notify.run(imageuri, idmef.Get("alert.messageid"), urgency, src, desc)
 
 
 thresholding = threshold.Threshold(_expire_cb)

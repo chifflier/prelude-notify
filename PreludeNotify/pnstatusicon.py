@@ -1,4 +1,5 @@
 import gtk
+import gobject
 import pnconfig
 
 class PreludeStatusIcon():
@@ -87,5 +88,6 @@ class PreludeStatusIcon():
 		dialog.destroy()
 
 	def quit(self, widget):
+		gobject.MainLoop().quit()
 		gtk.main_quit()
 
