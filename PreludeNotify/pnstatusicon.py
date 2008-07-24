@@ -28,7 +28,6 @@ class PreludeStatusIcon():
 			event_time, icon)
 
 	def configure(self, widget):
-
 		dialog = gtk.Dialog("Configure prelude notify", None, 0,
 			(gtk.STOCK_OK, gtk.RESPONSE_OK,
 			 gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
