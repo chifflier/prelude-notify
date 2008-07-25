@@ -62,7 +62,7 @@ c.SetFlags(0)
 
 def doConnect(con):
     con.Connect(c, ClientEasy.IDMEF_READ)
-    Notify.run(None, None, pynotify.URGENCY_CRITICAL, con.GetPeerAddr(), "<b>Connection successful</b>")
+    Notify.run(None, None, pynotify.URGENCY_LOW, con.GetPeerAddr(), "<b>Connection successful</b>")
 
 def handleDisconnect(con, err=None):
     Notify.run(None, None, pynotify.URGENCY_CRITICAL, con.GetPeerAddr(), "<b>Connection interrupted</b>")

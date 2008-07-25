@@ -5,18 +5,18 @@ import urllib
 
 import pnconfig
 
-def PrewikkaURL(ids):
-        if len(data) > 1:
+def PrewikkaURL(conf, idlist):
+        if len(idlist) > 1:
                 j = 0
                 mid = ""
-                for id in data:
+                for id in idlist:
                         operator = urllib.quote("=")
                         mid += "&classification_object_%d=alert.messageid&classification_operator_%d=%s&classification_value_%d=%s" % (j, j, operator, j, urllib.quote(id))
                         j += 1
 
-                url = "%s?view=alert_listing%s" % (self.conf.get("prewikka", "url"), mid)
+                url = "%s?view=alert_listing%s" % (conf.get("prewikka", "url"), mid)
         else:
-                url = "%s?view=alert_summary&origin=alert_listing&messageid=%s" % (self.conf.get("prewikka", "url"), data[0])
+                url = "%s?view=alert_summary&origin=alert_listing&messageid=%s" % (conf.get("prewikka", "url"), idlist[0])
 
         return url
 
@@ -29,7 +29,7 @@ class PreludeNotify:
 
         def _prewikka_view_cb(self, n, action, messageid):
                 if self.conf.get("ui", "browser") == "auto":
-                        webbrowser.open(PrewikkaUrl(messageid))
+                        webbrowser.open(PrewikkaURL(self.conf, messageid))
 
                 n.close()
                 self.loop.quit()
