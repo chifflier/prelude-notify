@@ -66,7 +66,12 @@ def PollIDMEF():
 
         ret = c.RecvIDMEF(idmef, 100)
         if ret and not idmef.Get("heartbeat.create_time"):
-                thresholding.thresholdMessage(idmef)
+		filter = config.get("idmef", "filter")
+		if filter == "":
+	                thresholding.thresholdMessage(idmef)
+		else:
+			if PreludeEasy.IDMEFCriteria(filter).match(idmef):
+		                thresholding.thresholdMessage(idmef)
 
         return 1
 
