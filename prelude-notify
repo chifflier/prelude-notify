@@ -61,16 +61,20 @@ for addr in manager_addresses:
 
 c.Start()
 
+filter = config.get("idmef", "filter")
+criteria = None
+if not filter == "":
+	criteria = PreludeEasy.IDMEFCriteria(filter)
+
 def PollIDMEF():
         idmef = PreludeEasy.IDMEF()
 
         ret = c.RecvIDMEF(idmef, 100)
         if ret and not idmef.Get("heartbeat.create_time"):
-		filter = config.get("idmef", "filter")
-		if filter == "":
+		if not criteria:
 	                thresholding.thresholdMessage(idmef)
 		else:
-			if PreludeEasy.IDMEFCriteria(filter).match(idmef):
+			if criteria.match(idmef):
 		                thresholding.thresholdMessage(idmef)
 
         return 1
