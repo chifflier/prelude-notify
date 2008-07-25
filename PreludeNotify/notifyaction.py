@@ -5,27 +5,31 @@ import urllib
 
 import pnconfig
 
+def PrewikkaURL(ids):
+        if len(data) > 1:
+                j = 0
+                mid = ""
+                for id in data:
+                        operator = urllib.quote("=")
+                        mid += "&classification_object_%d=alert.messageid&classification_operator_%d=%s&classification_value_%d=%s" % (j, j, operator, j, urllib.quote(id))
+                        j += 1
+
+                url = "%s?view=alert_listing%s" % (self.conf.get("prewikka", "url"), mid)
+        else:
+                url = "%s?view=alert_summary&origin=alert_listing&messageid=%s" % (self.conf.get("prewikka", "url"), data[0])
+
+        return url
+
+
 class PreludeNotify:
         def __init__(self, config):
                 pynotify.init("PreludeNotify")
                 self.loop = gobject.MainLoop()
                 self.conf = config
 
-        def _prewikka_view_cb(self, n, action, data):
-                if len(data) > 1:
-                        j = 0
-                        mid = ""
-                        for id in data:
-                                operator = urllib.quote("=")
-                                mid += "&classification_object_%d=alert.messageid&classification_operator_%d=%s&classification_value_%d=%s" % (j, j, operator, j, urllib.quote(id))
-                                j += 1
-
-                        url = "%s?view=alert_listing%s" % (self.conf.get("prewikka", "url"), mid)
-                else:
-                        url = "%s?view=alert_summary&origin=alert_listing&messageid=%s" % (self.conf.get("prewikka", "url"), data[0])
-
+        def _prewikka_view_cb(self, n, action, messageid):
                 if self.conf.get("ui", "browser") == "auto":
-                        webbrowser.open(url)
+                        webbrowser.open(PrewikkaUrl(messageid))
 
                 n.close()
                 self.loop.quit()
