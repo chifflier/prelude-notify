@@ -6,8 +6,8 @@ import gobject, gtk, pynotify
 
 from PreludeNotify import notifyaction, pnstatusicon, pnconfig, threshold
 
-Notify = notifyaction.PreludeNotify()
 config = pnconfig.PnConfig()
+Notify = notifyaction.PreludeNotify(config)
 
 def _expire_cb(item):
     idmef = item.idmef

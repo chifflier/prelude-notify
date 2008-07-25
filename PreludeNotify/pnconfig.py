@@ -22,6 +22,7 @@ class PnConfig():
 			FILE.write("url=http://localhost:8000\n\n")
 			FILE.write("[ui]\n")
 			FILE.write("theme=default\n")
+			FILE.write("browser=auto\n")
 			FILE.close()
 			self.cp.read(self.configname)
 		else:
