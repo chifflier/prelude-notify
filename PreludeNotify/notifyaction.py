@@ -1,7 +1,7 @@
 import gobject
 import pynotify
-
 import webbrowser
+import urllib
 
 import pnconfig
 
@@ -9,14 +9,23 @@ class PreludeNotify:
         def __init__(self, config):
                 pynotify.init("PreludeNotify")
                 self.loop = gobject.MainLoop()
-		self.conf = config
+                self.conf = config
 
         def _prewikka_view_cb(self, n, action, data):
-                url = "%s?view=alert_summary&origin=alert_listing&messageid=%s" % (self.conf.get("prewikka", "url"), data)
+                if len(data) > 1:
+                        j = 0
+                        mid = ""
+                        for id in data:
+                                operator = urllib.quote("=")
+                                mid += "&classification_object_%d=alert.messageid&classification_operator_%d=%s&classification_value_%d=%s" % (j, j, operator, j, urllib.quote(id))
+                                j += 1
 
-                #print "Open URL: " + url
-		if self.conf.get("ui", "browser") == "auto":
-			webbrowser.open(url)
+                        url = "%s?view=alert_listing%s" % (self.conf.get("prewikka", "url"), mid)
+                else:
+                        url = "%s?view=alert_summary&origin=alert_listing&messageid=%s" % (self.conf.get("prewikka", "url"), data[0])
+
+                if self.conf.get("ui", "browser") == "auto":
+                        webbrowser.open(url)
 
                 n.close()
                 self.loop.quit()

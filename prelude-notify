@@ -46,7 +46,7 @@ def _expire_cb(item):
     else:
         desc = cl
 
-    Notify.run(imageuri, idmef.Get("alert.messageid"), urgency, src, desc)
+    Notify.run(imageuri, item.messageid, urgency, src, desc)
 
 
 thresholding = threshold.Threshold(_expire_cb)

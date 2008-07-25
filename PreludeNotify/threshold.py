@@ -20,11 +20,14 @@ class Threshold:
         item.key = key
         item.count = 1
         item.idmef = idmef
+        item.messageid = [ idmef.Get("alert.messageid") ]
         item.timer = gobject.timeout_add(self._timeout * 1000, self._timer_cb, item)
 
-    def _updateEntry(self, key):
+    def _updateEntry(self, key, idmef):
         item = self._limited[key]
         item.count = item.count + 1
+        item.messageid.append(idmef.Get("alert.messageid"))
+
         gobject.source_remove(item.timer)
         item.timer = gobject.timeout_add(self._timeout * 1000, self._timer_cb, item)
 
@@ -36,6 +39,6 @@ class Threshold:
 
         key = str(rl)
         if self._limited.has_key(key):
-            self._updateEntry(key)
+            self._updateEntry(key, idmef)
         else:
             self._newEntry(key, idmef)
