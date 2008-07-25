@@ -40,7 +40,10 @@ class PreludeNotify:
                 if urgency is not None:
                     n.set_urgency(urgency)
 
-                n.add_action("pview", "Prewikka View", self._prewikka_view_cb, messageid)
+                if messageid:
+                        n.add_action("pview", "Prewikka View", self._prewikka_view_cb, messageid)
+
                 n.show()
 
-                self.loop.run()
+                if messageid:
+                        self.loop.run()

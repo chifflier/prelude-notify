@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import PreludeEasy
-from PreludeEasy import ConnectionPool, Connection
+from PreludeEasy import ClientEasy, ConnectionPool, Connection, IDMEF
 import gobject, gtk, pynotify
 
 from PreludeNotify import notifyaction, pnstatusicon, pnconfig, threshold
@@ -51,35 +51,60 @@ def _expire_cb(item):
 
 thresholding = threshold.Threshold(_expire_cb)
 
-
-c = PreludeEasy.ClientEasy(config.get("idmef", "profile"), PreludeEasy.Client.IDMEF_READ)
-c.SetFlags(PreludeEasy.Client.CONNECT)
-pool = c.GetConnectionPool()
-manager_addresses = config.get("manager", "addresses").split(',')
-for addr in manager_addresses:
-        pool.AddConnection(Connection(addr))
-
-c.Start()
-
 filter = config.get("idmef", "filter")
 criteria = None
 if not filter == "":
-	criteria = PreludeEasy.IDMEFCriteria(filter)
+        criteria = PreludeEasy.IDMEFCriteria(filter)
 
-def PollIDMEF():
-        idmef = PreludeEasy.IDMEF()
+
+c = PreludeEasy.ClientEasy(config.get("idmef", "profile"), PreludeEasy.Client.IDMEF_READ)
+c.SetFlags(0)
+
+def doConnect(con):
+    con.Connect(c, ClientEasy.IDMEF_READ)
+    Notify.run(None, None, pynotify.URGENCY_CRITICAL, con.GetPeerAddr(), "<b>Connection successful</b>")
+
+def handleDisconnect(con, err=None):
+    Notify.run(None, None, pynotify.URGENCY_CRITICAL, con.GetPeerAddr(), "<b>Connection interrupted</b>")
+    gobject.timeout_add(10000, doConnect, con)
+
+
+def io_cb(fd, cond, con):
+    if cond & gobject.IO_IN:
+        try:
+                idmef = con.RecvIDMEF()
+        except PreludeEasy.PreludeError, err:
+            if err.GetErrorCode() == -8388614:
+                handleDisconnect(con)
+                return False
+
+        if not idmef.Get("heartbeat.create_time"):
+            thresholding.thresholdMessage(idmef)
 
         ret = c.RecvIDMEF(idmef, 100)
         if ret and not idmef.Get("heartbeat.create_time"):
-		if not criteria:
-	                thresholding.thresholdMessage(idmef)
-		else:
-			if criteria.match(idmef):
-		                thresholding.thresholdMessage(idmef)
+                if not criteria:
+                        thresholding.thresholdMessage(idmef)
+                else:
+                        if criteria.match(idmef):
+                                thresholding.thresholdMessage(idmef)
 
-        return 1
+    if cond & gobject.IO_ERR or cond & gobject.IO_HUP:
+        handleDisconnect(con)
+        return False
 
+    return True
+
+
+manager_addresses = config.get("manager", "addresses").split(',')
+for addr in manager_addresses:
+        con = Connection(addr)
+        doConnect(con)
+        gobject.io_add_watch(con.GetFd(), gobject.IO_IN|gobject.IO_PRI|gobject.IO_HUP|gobject.IO_NVAL|gobject.IO_ERR, io_cb, con)
+
+
+c.Start()
 statusicon = pnstatusicon.PreludeStatusIcon(config)
-gobject.idle_add(PollIDMEF)
+
 gtk.main()
 
