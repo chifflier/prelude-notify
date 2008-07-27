@@ -2,6 +2,7 @@ import gobject
 import pynotify
 import webbrowser
 import urllib
+import os
 
 import pnconfig
 
@@ -22,17 +23,16 @@ def PrewikkaURL(conf, idlist):
 
 
 class PreludeNotify:
-        def __init__(self, config):
+        def __init__(self, gloop, config):
                 pynotify.init("PreludeNotify")
-                self.loop = gobject.MainLoop()
+                self.gloop = gloop
                 self.conf = config
 
         def _prewikka_view_cb(self, n, action, messageid):
                 if self.conf.get("ui", "browser") == "auto":
-                        webbrowser.open(PrewikkaURL(self.conf, messageid))
+                        webbrowser.open(PrewikkaURL(self.conf, messageid), autoraise=True)
 
                 n.close()
-                self.loop.quit()
 
         def run(self, imageuri, messageid, urgency, title, message):
                 n = pynotify.Notification(title, message, imageuri)
@@ -40,10 +40,15 @@ class PreludeNotify:
                 if urgency is not None:
                     n.set_urgency(urgency)
 
-                if messageid:
+                if messageid and self.conf.get("prewikka", "url"):
+                        add_action = True
+                else:
+                        add_action = False
+
+                if add_action:
                         n.add_action("pview", "Prewikka View", self._prewikka_view_cb, messageid)
 
                 n.show()
 
-                if messageid:
-                        self.loop.run()
+                if add_action:
+                        self.gloop.run()
