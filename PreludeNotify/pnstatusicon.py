@@ -5,10 +5,16 @@ import pnconfig
 class PreludeStatusIcon():
 
         def __init__(self, gloop, config):
-                icon = gtk.status_icon_new_from_file(pnconfig.iconok)
-                icon.connect('popup-menu', self.menu)
+                self.icon = gtk.status_icon_new_from_file(pnconfig.iconok)
+                self.icon.connect('popup-menu', self.menu)
                 self.config = config
                 self.gloop = gloop
+
+	def MissedAlerts(self):
+                self.icon.set_from_file(pnconfig.iconbad)
+
+	def SeenAlerts(self):
+                self.icon.set_from_file(pnconfig.iconok)
 
         def menu(self, icon, event_button, event_time):
                 m = gtk.Menu()
@@ -81,7 +87,6 @@ class PreludeStatusIcon():
                         self.config.set("ui", "theme", theme_entry.get_text())
 
                 dialog.destroy()
-
 
         def about(self, widget):
                 dialog = gtk.AboutDialog()

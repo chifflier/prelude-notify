@@ -3,6 +3,7 @@ from PreludeNotify import siteconfig
 from ConfigParser import SafeConfigParser
 
 iconok = siteconfig.prefix + "/share/prelude-notify/tray/notify-ok.png"
+iconbad = siteconfig.prefix + "/share/prelude-notify/tray/notify-bad.png"
 themespath = siteconfig.prefix + "/share/prelude-notify/themes/"
 
 class PnConfig():

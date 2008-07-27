@@ -4,14 +4,21 @@ import PreludeEasy
 from PreludeEasy import ClientEasy, ConnectionPool, Connection, IDMEF
 import gobject, gtk, pynotify
 
-from PreludeNotify import notifyaction, pnstatusicon, pnconfig, threshold
+from PreludeNotify import notifyaction, pnstatusicon, pnconfig, threshold, x11idle
 
 gloop = gobject.MainLoop()
 config = pnconfig.PnConfig()
 Notify = notifyaction.PreludeNotify(gloop, config)
+idle = x11idle.X11Idle()
+statusicon = pnstatusicon.PreludeStatusIcon(gloop, config)
 
 def _expire_cb(item):
     idmef = item.idmef
+
+    if idle.IdleTimeGet() > 5:
+	statusicon.MissedAlerts()
+    else
+    	statusicon.SeenAlerts()
 
     if item.count > 1:
         cstr = "%d x " % item.count
@@ -104,7 +111,6 @@ for addr in manager_addresses:
 
 
 c.Start()
-statusicon = pnstatusicon.PreludeStatusIcon(gloop, config)
 
 gloop.run()
 
