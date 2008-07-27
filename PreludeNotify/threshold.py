@@ -6,14 +6,17 @@ class ThresholdItem:
 class Threshold:
     def __init__(self, expire_cb):
         self._limited = { }
-        self._timeout = 5
+        self._timeout = 5 * 1000
         self._expire_cb = expire_cb
-        self._limit_path = [ "alert.source(0).node.address(0).address", "alert.classification.text" ]
+        self._limit_path = [ "alert.source(*).node.address(*).address", "alert.classification.text" ]
 
     def _timer_cb(self, item):
-        self._expire_cb(item)
         self._limited.pop(item.key)
+        self._expire_cb(item)
         return False
+
+    def _setTimer(self, item):
+        item.timer = gobject.timeout_add(self._timeout, self._timer_cb, item)
 
     def _newEntry(self, key, idmef):
         item = self._limited[key] = ThresholdItem()
@@ -21,7 +24,7 @@ class Threshold:
         item.count = 1
         item.idmef = idmef
         item.messageid = [ idmef.Get("alert.messageid") ]
-        item.timer = gobject.timeout_add(self._timeout * 1000, self._timer_cb, item)
+        self._setTimer(item)
 
     def _updateEntry(self, key, idmef):
         item = self._limited[key]
@@ -29,7 +32,7 @@ class Threshold:
         item.messageid.append(idmef.Get("alert.messageid"))
 
         gobject.source_remove(item.timer)
-        item.timer = gobject.timeout_add(self._timeout * 1000, self._timer_cb, item)
+        self._setTimer(item)
 
     def thresholdMessage(self, idmef):
         rl = []
