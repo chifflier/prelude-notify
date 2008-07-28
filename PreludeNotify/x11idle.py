@@ -1,5 +1,15 @@
 try:
 	import ctypes, ctypes.util
+
+	class XScreenSaverInfo( ctypes.Structure):
+  		""" typedef struct { ... } XScreenSaverInfo; """
+  		_fields_ = [('window',      ctypes.c_ulong), # screen saver window
+       	 	    ('state',       ctypes.c_int),   # off,on,disabled
+       		    ('kind',        ctypes.c_int),   # blanked,internal,external
+                    ('since',       ctypes.c_ulong), # milliseconds
+                    ('idle',        ctypes.c_ulong), # milliseconds
+                    ('event_mask',  ctypes.c_ulong)] # events
+
 	have_ctype = True
 except:
 	have_ctype = None
