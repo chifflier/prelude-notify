@@ -2,7 +2,7 @@ import gtk
 import gobject
 import pnconfig
 
-class PreludeStatusIcon():
+class PreludeStatusIcon:
 
         def __init__(self, gloop, config):
                 self.icon = gtk.status_icon_new_from_file(pnconfig.iconok)

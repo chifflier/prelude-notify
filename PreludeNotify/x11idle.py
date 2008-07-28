@@ -1,5 +1,5 @@
 try:
-	import ctypes, ctypes.util, ctypes.Structure
+	import xctypes, ctypes.util, ctypes.Structure
 
 	class XScreenSaverInfo( ctypes.Structure):
   		""" typedef struct { ... } XScreenSaverInfo; """
@@ -11,20 +11,11 @@ try:
                     ('event_mask',  ctypes.c_ulong)] # events
 
 	have_ctype = True
-except:
+except ImportError:
 	have_ctype = None
 
 import os
 import time
-
-class XScreenSaverInfo( ctypes.Structure):
-  """ typedef struct { ... } XScreenSaverInfo; """
-  _fields_ = [('window',      ctypes.c_ulong), # screen saver window
-              ('state',       ctypes.c_int),   # off,on,disabled
-              ('kind',        ctypes.c_int),   # blanked,internal,external
-              ('since',       ctypes.c_ulong), # milliseconds
-              ('idle',        ctypes.c_ulong), # milliseconds
-              ('event_mask',  ctypes.c_ulong)] # events
 
 class X11Idle:
         def __init__(self):
