@@ -1,5 +1,5 @@
 try:
-	import ctypes, ctypes.util
+	import ctypes, ctypes.util, ctypes.Structure
 
 	class XScreenSaverInfo( ctypes.Structure):
   		""" typedef struct { ... } XScreenSaverInfo; """
