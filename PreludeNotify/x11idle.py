@@ -1,4 +1,9 @@
-import ctypes, ctypes.util
+try:
+	import ctypes, ctypes.util
+	have_ctype = True
+except:
+	have_ctype = None
+
 import os
 import time
 
@@ -14,6 +19,9 @@ class XScreenSaverInfo( ctypes.Structure):
 class X11Idle:
         def __init__(self):
                 self.xss = None
+
+		if not have_ctype:
+			return
 
                 try:
                         xlib = ctypes.cdll.LoadLibrary(ctypes.util.find_library("X11"))
