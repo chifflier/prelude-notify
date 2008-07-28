@@ -17,7 +17,7 @@ def _expire_cb(item):
 
     if idle.IdleTimeGet() > 5:
 	statusicon.MissedAlerts()
-    else
+    else:
     	statusicon.SeenAlerts()
 
     if item.count > 1:
