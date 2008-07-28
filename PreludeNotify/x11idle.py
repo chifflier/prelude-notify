@@ -1,6 +1,5 @@
-import ctypes
+import ctypes, ctypes.util
 import os
-
 import time
 
 class XScreenSaverInfo( ctypes.Structure):
@@ -13,22 +12,38 @@ class XScreenSaverInfo( ctypes.Structure):
               ('event_mask',  ctypes.c_ulong)] # events
 
 class X11Idle:
-	def __init__(self):
-		xlib = ctypes.cdll.LoadLibrary('libX11.so')
-		self.dpy = xlib.XOpenDisplay( os.environ['DISPLAY'])
-		self.root = xlib.XDefaultRootWindow(self.dpy)
-		self.xss = ctypes.cdll.LoadLibrary('libXss.so')
-		self.xss.XScreenSaverAllocInfo.restype = ctypes.POINTER(XScreenSaverInfo)
-		self.xss_info = self.xss.XScreenSaverAllocInfo()
+        def __init__(self):
+                self.xss = None
 
-	def IdleTimeGet(self):
-		self.xss.XScreenSaverQueryInfo(self.dpy, self.root, self.xss_info)
-	        return self.xss_info.contents.idle / 1000
+                try:
+                        xlib = ctypes.cdll.LoadLibrary(ctypes.util.find_library("X11"))
+                except:
+                        print "X11 library not found"
+                        return
+
+                self.dpy = xlib.XOpenDisplay(os.environ['DISPLAY'])
+                self.root = xlib.XDefaultRootWindow(self.dpy)
+                try:
+                        self.xss = ctypes.cdll.LoadLibrary(ctypes.util.find_library("Xss"))
+                except:
+                        print "XSS unsupported"
+                        return
+
+                self.xss.XScreenSaverAllocInfo.restype = ctypes.POINTER(XScreenSaverInfo)
+                self.xss_info = self.xss.XScreenSaverAllocInfo()
+
+        def IdleTimeGet(self):
+                if not self.xss:
+                        return 0
+
+                self.xss.XScreenSaverQueryInfo(self.dpy, self.root, self.xss_info)
+
+                return self.xss_info.contents.idle / 1000
 
 
 if __name__ == "__main__":
-	idle = X11Idle()
-	while 1:
-		print str(idle.IdleTimeGet())
-		time.sleep(1)
+        idle = X11Idle()
+        while 1:
+                print str(idle.IdleTimeGet())
+                time.sleep(1)
 
