@@ -8,7 +8,7 @@ from PreludeNotify import notifyaction, pnstatusicon, pnconfig, threshold, x11id
 
 gloop = gobject.MainLoop()
 config = pnconfig.PnConfig()
-Notify = notifyaction.PreludeNotify(gloop, config)
+Notify = notifyaction.PreludeNotify(config)
 idle = x11idle.X11Idle()
 statusicon = pnstatusicon.PreludeStatusIcon(gloop, config)
 

@@ -22,22 +22,21 @@ def PrewikkaURL(conf, idlist):
 
 
 class PreludeNotify:
-        def __init__(self, gloop, config):
+        def __init__(self, config):
                 pynotify.init("PreludeNotify")
-                self.gloop = gloop
                 self.conf = config
+                self._pynotify_bug = [ ]
 
-        def handle_closed(self, n, recloop):
-                recloop.quit()
+        def _handle_closed(self, n):
+                self._pynotify_bug.remove(n)
 
-        def _prewikka_view_cb(self, n, action, data):
-                messageid, recloop = data
+        def _prewikka_view_cb(self, n, action, messageid):
+                self._pynotify_bug.remove(n)
 
                 if self.conf.get("ui", "browser") == "auto":
                         webbrowser.open(PrewikkaURL(self.conf, messageid), autoraise=True)
 
                 n.close()
-                recloop.quit()
 
         def run(self, imageuri, messageid, urgency, title, message):
                 n = pynotify.Notification(title, message, imageuri)
@@ -46,17 +45,10 @@ class PreludeNotify:
                     n.set_urgency(urgency)
 
                 if messageid and self.conf.get("prewikka", "url"):
-                        add_action = True
-                else:
-                        add_action = False
+                        n.data = messageid
+                        self._pynotify_bug.append(n)
 
-                if add_action:
-                        recloop = gobject.MainLoop()
-                        data = (messageid, recloop)
-                        n.add_action("response", "Prewikka View", self._prewikka_view_cb, data)
-                        n.connect('closed', self.handle_closed, recloop)
+                        n.add_action("response", "Prewikka View", self._prewikka_view_cb, messageid)
+                        n.connect("closed", self._handle_closed)
 
                 n.show()
-
-                if add_action:
-                        recloop.run()
