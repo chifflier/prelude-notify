@@ -4,7 +4,9 @@ import PreludeEasy
 from PreludeEasy import ClientEasy, ConnectionPool, Connection, IDMEF
 import gobject, gtk, pynotify
 
-from PreludeNotify import notifyaction, pnstatusicon, pnconfig, threshold, x11idle
+from PreludeNotify import notifyaction, pnstatusicon, pnconfig, ProfileRegister, threshold, x11idle
+
+import sys
 
 
 class Env:
@@ -84,8 +86,13 @@ c = PreludeEasy.ClientEasy(env.config.get("idmef", "profile"), PreludeEasy.Clien
 c.SetFlags(0)
 
 def doConnect(con):
-    con.Connect(c, ClientEasy.IDMEF_READ)
-    notify.run(None, None, pynotify.URGENCY_LOW, "Manager Connection successfull", "With Prelude-Manager <b>%s</b>" % con.GetPeerAddr())
+	try:
+		con.Connect(c, ClientEasy.IDMEF_READ)
+	except:
+		ProfileRegister.CreateProfile(c, ClientEasy.IDMEF_READ, env.config.get("idmef", "profile"))
+		sys.exit(1)
+
+	notify.run(None, None, pynotify.URGENCY_LOW, "Manager Connection successfull", "With Prelude-Manager <b>%s</b>" % con.GetPeerAddr())
 
 def handleDisconnect(con, err=None):
     notify.run(None, None, pynotify.URGENCY_CRITICAL, "Manager Connection interrupted", "With Prelude-Manager <b>%s</b>" % con.GetPeerAddr())
