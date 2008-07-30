@@ -86,11 +86,11 @@ c = PreludeEasy.ClientEasy(env.config.get("idmef", "profile"), PreludeEasy.Clien
 c.SetFlags(0)
 
 def doConnect(con):
-	try:
-		con.Connect(c, ClientEasy.IDMEF_READ)
-	except:
-		ProfileRegister.CreateProfile(c, ClientEasy.IDMEF_READ, env.config.get("idmef", "profile"))
-		sys.exit(1)
+	#try:
+	con.Connect(c, ClientEasy.IDMEF_READ)
+	#except:
+	#	ProfileRegister.CreateProfile(c, ClientEasy.IDMEF_READ, env.config.get("idmef", "profile"))
+	#	sys.exit(1)
 
 	notify.run(None, None, pynotify.URGENCY_LOW, "Manager Connection successfull", "With Prelude-Manager <b>%s</b>" % con.GetPeerAddr())
 
