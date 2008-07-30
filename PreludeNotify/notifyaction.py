@@ -44,7 +44,7 @@ class NotifyNow:
                 if urgency is not None:
                     n.set_urgency(urgency)
 
-                if messageid and self.conf.get("prewikka", "url"):
+                if messageid and self._env.config.get("prewikka", "url"):
                         n.data = messageid
                         self._pynotify_bug.append(n)
 
@@ -60,14 +60,18 @@ class NotifyQueue(NotifyNow):
                 self._count = 0
 
         def flush(self):
-                if self._count > 0:
-                        PreludeNotify.run(self, None, self._queue, None, "%d missed" % self._count, "Blah")
-                        self._count = 0
-                        self._queue = []
+                if self._count == 0:
+                        return
+
+                NotifyNow.run(self, None, self._queue, None, "Events received while idle",
+                              "%d events received while you were away" % self._count)
+
+                self._count = 0
+                self._queue = []
 
         def run(self, imageuri, messageid, urgency, title, message):
                 self._count += 1
-                self._queue.append(messageid)
+                self._queue = self._queue + messageid
 
 
 class PreludeNotify(NotifyQueue, NotifyNow):
