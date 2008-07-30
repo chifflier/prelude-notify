@@ -2,8 +2,8 @@ import gobject
 import pynotify
 import webbrowser
 import urllib
-
 import pnconfig
+
 
 def PrewikkaURL(conf, idlist):
         if len(idlist) > 1:
@@ -21,10 +21,10 @@ def PrewikkaURL(conf, idlist):
         return url
 
 
-class PreludeNotify:
-        def __init__(self, config):
+class NotifyNow:
+        def __init__(self, env):
                 pynotify.init("PreludeNotify")
-                self.conf = config
+                self._env = env
                 self._pynotify_bug = [ ]
 
         def _handle_closed(self, n):
@@ -33,8 +33,8 @@ class PreludeNotify:
         def _prewikka_view_cb(self, n, action, messageid):
                 self._pynotify_bug.remove(n)
 
-                if self.conf.get("ui", "browser") == "auto":
-                        webbrowser.open(PrewikkaURL(self.conf, messageid), autoraise=True)
+                if self._env.config.get("ui", "browser") == "auto":
+                        webbrowser.open(PrewikkaURL(self._env.config, messageid), autoraise=True)
 
                 n.close()
 
@@ -52,3 +52,30 @@ class PreludeNotify:
                         n.connect("closed", self._handle_closed)
 
                 n.show()
+
+class NotifyQueue(NotifyNow):
+        def __init__(self, env):
+                NotifyNow.__init__(self, env)
+                self._queue = []
+                self._count = 0
+
+        def flush(self):
+                if self._count > 0:
+                        PreludeNotify.run(self, None, self._queue, None, "%d missed" % self._count, "Blah")
+                        self._count = 0
+                        self._queue = []
+
+        def run(self, imageuri, messageid, urgency, title, message):
+                self._count += 1
+                self._queue.append(messageid)
+
+
+class PreludeNotify(NotifyQueue, NotifyNow):
+        def __init__(self, env):
+                NotifyQueue.__init__(self, env)
+
+        def run(self, imageuri, messageid, urgency, title, message):
+                if not self._env.is_idle:
+                        NotifyNow.run(self, imageuri, messageid, urgency, title, message)
+                else:
+                        NotifyQueue.run(self, imageuri, messageid, urgency, title, message)

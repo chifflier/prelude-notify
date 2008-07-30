@@ -6,16 +6,26 @@ import gobject, gtk, pynotify
 
 from PreludeNotify import notifyaction, pnstatusicon, pnconfig, threshold, x11idle
 
-gloop = gobject.MainLoop()
-config = pnconfig.PnConfig()
-Notify = notifyaction.PreludeNotify(config)
+
+class Env:
+        pass
+
+env = Env()
+env.gloop = gobject.MainLoop()
+env.config = pnconfig.PnConfig()
+env.is_idle = False
+
 idle = x11idle.X11Idle()
-statusicon = pnstatusicon.PreludeStatusIcon(gloop, config)
+notify = notifyaction.PreludeNotify(env)
+statusicon = pnstatusicon.PreludeStatusIcon(env.gloop, env.config)
 
 def idle_timer_cb():
         if idle.IdleTimeGet() < 5:
+                env.is_idle = False
+                notify.flush()
                 statusicon.SeenAlerts()
         else:
+                env.is_idle = True
                 statusicon.MissedAlerts()
 
         return True
@@ -29,7 +39,8 @@ def _expire_cb(item):
     else:
         cstr = ""
 
-    baseuri = "file://" + pnconfig.themespath + config.get("ui", "theme") + "/"
+    theme = env.config.get("ui", "theme")
+    baseuri = "file://" + pnconfig.themespath + theme + "/"
     severity = idmef.Get("alert.assessment.impact.severity")
 
     urgency = None
@@ -44,7 +55,7 @@ def _expire_cb(item):
             break
 
     if severity:
-        imageuri = "file://" + pnconfig.themespath + config.get("ui", "theme") + "/" + severity + ".png"
+        imageuri = "file://" + pnconfig.themespath + theme + "/" + severity + ".png"
     else:
         imageuri = None
 
@@ -58,26 +69,26 @@ def _expire_cb(item):
     else:
         desc = cl
 
-    Notify.run(imageuri, item.messageid, urgency, src, desc)
+    notify.run(imageuri, item.messageid, urgency, src, desc)
 
 
 thresholding = threshold.Threshold(_expire_cb)
 
-filter = config.get("idmef", "filter")
+filter = env.config.get("idmef", "filter")
 criteria = None
 if not filter == "":
         criteria = PreludeEasy.IDMEFCriteria(filter)
 
 
-c = PreludeEasy.ClientEasy(config.get("idmef", "profile"), PreludeEasy.Client.IDMEF_READ)
+c = PreludeEasy.ClientEasy(env.config.get("idmef", "profile"), PreludeEasy.Client.IDMEF_READ)
 c.SetFlags(0)
 
 def doConnect(con):
     con.Connect(c, ClientEasy.IDMEF_READ)
-    Notify.run(None, None, pynotify.URGENCY_LOW, "Manager Connection successfull", "With Prelude-Manager <b>%s</b>" % con.GetPeerAddr())
+    notify.run(None, None, pynotify.URGENCY_LOW, "Manager Connection successfull", "With Prelude-Manager <b>%s</b>" % con.GetPeerAddr())
 
 def handleDisconnect(con, err=None):
-    Notify.run(None, None, pynotify.URGENCY_CRITICAL, "Manager Connection interrupted", "With Prelude-Manager <b>%s</b>" % con.GetPeerAddr())
+    notify.run(None, None, pynotify.URGENCY_CRITICAL, "Manager Connection interrupted", "With Prelude-Manager <b>%s</b>" % con.GetPeerAddr())
     gobject.timeout_add(10000, doConnect, con)
 
 def io_cb(fd, cond, con):
@@ -107,7 +118,7 @@ def io_cb(fd, cond, con):
     return True
 
 
-manager_addresses = config.get("manager", "addresses").split(',')
+manager_addresses = env.config.get("manager", "addresses").split(',')
 for addr in manager_addresses:
         con = Connection(addr)
         doConnect(con)
@@ -116,5 +127,5 @@ for addr in manager_addresses:
 
 c.Start()
 gobject.timeout_add(1000, idle_timer_cb)
-gloop.run()
+env.gloop.run()
 
