@@ -90,9 +90,18 @@ class PreludeStatusIcon:
 
         def about(self, widget):
                 dialog = gtk.AboutDialog()
-                dialog.set_program_name("Prelude Notify")
-                dialog.set_copyright("Sebastien Tricaud (c) 2008")
-                dialog.set_comments("Systray Notification for Prelude IDS")
+		try:
+                	dialog.set_program_name("Prelude Notify")
+		except AttributeError:
+			print "Cannot add the dialog program name"
+		try:
+                	dialog.set_copyright("Sebastien Tricaud (c) 2008")
+		except AttributeError:
+			print "Cannot add the dialog copyright"
+		try:
+                	dialog.set_comments("Systray Notification for Prelude IDS")
+		except AttributeError:
+			print "Cannot add the dialog comments"
                 dialog.run()
                 dialog.destroy()
 
