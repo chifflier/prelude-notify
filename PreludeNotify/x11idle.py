@@ -1,18 +1,18 @@
 try:
-	import xctypes, ctypes.util, ctypes.Structure
+        import ctypes, ctypes.util
 
-	class XScreenSaverInfo( ctypes.Structure):
-  		""" typedef struct { ... } XScreenSaverInfo; """
-  		_fields_ = [('window',      ctypes.c_ulong), # screen saver window
-       	 	    ('state',       ctypes.c_int),   # off,on,disabled
-       		    ('kind',        ctypes.c_int),   # blanked,internal,external
+        class XScreenSaverInfo(ctypes.Structure):
+                """ typedef struct { ... } XScreenSaverInfo; """
+                _fields_ = [('window',      ctypes.c_ulong), # screen saver window
+                    ('state',       ctypes.c_int),   # off,on,disabled
+                    ('kind',        ctypes.c_int),   # blanked,internal,external
                     ('since',       ctypes.c_ulong), # milliseconds
                     ('idle',        ctypes.c_ulong), # milliseconds
                     ('event_mask',  ctypes.c_ulong)] # events
 
-	have_ctype = True
+        have_ctype = True
 except ImportError:
-	have_ctype = None
+        have_ctype = False
 
 import os
 import time
@@ -21,8 +21,8 @@ class X11Idle:
         def __init__(self):
                 self.xss = None
 
-		if not have_ctype:
-			return
+                if not have_ctype:
+                        return
 
                 try:
                         xlib = ctypes.cdll.LoadLibrary(ctypes.util.find_library("X11"))
