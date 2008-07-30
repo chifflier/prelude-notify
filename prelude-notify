@@ -22,7 +22,7 @@ notify = notifyaction.PreludeNotify(env)
 statusicon = pnstatusicon.PreludeStatusIcon(env.gloop, env.config)
 
 def idle_timer_cb():
-        if idle.IdleTimeGet() < 5:
+        if idle.IdleTimeGet() < env.config("general","X11idle_timeout"):
                 env.is_idle = False
                 notify.flush()
                 statusicon.SeenAlerts()

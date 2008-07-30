@@ -17,6 +17,8 @@ class PnConfig:
 			FILE.write("[general]\n")
 			FILE.write("# Time in seconds for alert grouping\n")
 			FILE.write("threshold_timeout=5\n")
+			FILE.write("# Time in seconds before thinking you are away from keyboard and missing alerts\n")
+			FILE.write("X11idle_timeout=5\n")
 			FILE.write("[idmef]\n")
 			FILE.write("profile=prelude-notify\n")
 			FILE.write("filter=\n\n")
