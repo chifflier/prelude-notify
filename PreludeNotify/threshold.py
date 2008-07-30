@@ -4,9 +4,9 @@ class ThresholdItem:
     pass
 
 class Threshold:
-    def __init__(self, expire_cb):
+    def __init__(self, threshold_timeout, expire_cb):
         self._limited = { }
-        self._timeout = 5 * 1000
+        self._timeout = int(threshold_timeout) * 1000
         self._expire_cb = expire_cb
         self._limit_path = [ "alert.source(*).node.address(*).address", "alert.classification.text" ]
 

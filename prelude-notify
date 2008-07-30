@@ -74,7 +74,7 @@ def _expire_cb(item):
     notify.run(imageuri, item.messageid, urgency, src, desc)
 
 
-thresholding = threshold.Threshold(_expire_cb)
+thresholding = threshold.Threshold(env.config.get("general","threshold_timeout"),_expire_cb)
 
 filter = env.config.get("idmef", "filter")
 criteria = None

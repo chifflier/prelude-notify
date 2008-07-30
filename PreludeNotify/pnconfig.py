@@ -14,6 +14,9 @@ class PnConfig:
 		if not os.path.exists(self.configname):
 			# Write the default configuration file
 			FILE = open(self.configname,"w")
+			FILE.write("[general]\n")
+			FILE.write("# Time in seconds for alert grouping\n")
+			FILE.write("threshold_timeout=5\n")
 			FILE.write("[idmef]\n")
 			FILE.write("profile=prelude-notify\n")
 			FILE.write("filter=\n\n")
