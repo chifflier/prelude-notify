@@ -5,6 +5,8 @@ import gobject
 import os
 
 class Session:
+	_addrevents = {}
+
 	def __init__(self, env, hbmonitor):
 		self.con = None
 		self.env = env
@@ -27,10 +29,11 @@ class Session:
 		for addr in manager_addresses:
 		        self.con = Connection(addr)
 		        self.doConnect()
-		        gobject.io_add_watch(self.con.GetFd(), gobject.IO_IN|gobject.IO_PRI|gobject.IO_HUP|gobject.IO_NVAL|gobject.IO_ERR, self.io_cb, self.con)
+		        self._addrevents[addr] = gobject.io_add_watch(self.con.GetFd(), gobject.IO_IN|gobject.IO_PRI|gobject.IO_HUP|gobject.IO_NVAL|gobject.IO_ERR, self.io_cb, self.con)
 
 	def delCon(self):
-		self.con = None
+		for addr in self._addrevents:
+			gobject.source_remove(self._addrevents[addr])
 
 	def io_cb(self, fd, cond, con):
 		if cond & gobject.IO_IN:
