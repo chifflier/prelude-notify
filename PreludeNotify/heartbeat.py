@@ -4,7 +4,7 @@ import pynotify
 
 class HeartbeatSource:
         def _update_fields(self, idmef):
-                self._heartbeat_interval = 10 #idmef.Get("heartbeat.heartbeat_interval")
+                self._heartbeat_interval = idmef.Get("heartbeat.heartbeat_interval")
                 self._last = time.time()
 
                 self._name = idmef.Get("heartbeat.analyzer(-1).name")
