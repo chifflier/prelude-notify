@@ -64,12 +64,12 @@ if not filter == "":
         criteria = PreludeEasy.IDMEFCriteria(filter)
 
 
-c = PreludeEasy.ClientEasy(env.config.get("idmef", "profile"), PreludeEasy.Client.IDMEF_READ)
-c.SetFlags(0)
+env.client = PreludeEasy.ClientEasy(env.config.get("idmef", "profile"), PreludeEasy.Client.IDMEF_READ)
+env.client.SetFlags(0)
 
 def doConnect(con):
         #try:
-        con.Connect(c, ClientEasy.IDMEF_READ)
+        con.Connect(env.client, ClientEasy.IDMEF_READ)
         #except:
         #       ProfileRegister.CreateProfile(c, ClientEasy.IDMEF_READ, env.config.get("idmef", "profile"))
         #       sys.exit(1)
@@ -111,7 +111,7 @@ for addr in manager_addresses:
         gobject.io_add_watch(con.GetFd(), gobject.IO_IN|gobject.IO_PRI|gobject.IO_HUP|gobject.IO_NVAL|gobject.IO_ERR, io_cb, con)
 
 
-c.Start()
+env.client.Start()
 gobject.timeout_add(1000, idle_timer_cb)
 env.gloop.run()
 
