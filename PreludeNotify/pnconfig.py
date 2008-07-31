@@ -51,9 +51,11 @@ class PnConfig:
 		self.cp.write(FILE)
 		FILE.close()
 
-	def update(self, section_key):
-		if section_key == "manager_addresses":
-			self._configtable[section_key][0]
-
-
-
+	def update(self):
+		for section_key in self._configtable:
+			if section_key == "manager_addresses":
+				old = self._configtable[section_key][0]
+				new = self._configtable[section_key][1]
+				if old != new:
+					self.managercon.delCon()
+					self.managercon.ConnectAddresses(new)

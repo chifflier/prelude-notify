@@ -86,6 +86,8 @@ class PreludeStatusIcon:
                         self.config.set("prewikka", "url", prewikka_url_entry.get_text())
                         self.config.set("ui", "theme", theme_entry.get_text())
 
+			self.config.update()
+
                 dialog.destroy()
 
         def about(self, widget):

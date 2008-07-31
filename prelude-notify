@@ -68,7 +68,9 @@ env.client = PreludeEasy.ClientEasy(env.config.get("idmef", "profile"), PreludeE
 env.client.SetFlags(0)
 
 managercon = ManagerConnection.Session(env, hbmonitor)
-managercon.ConnectAdresses(env.config.get("manager","addresses"))
+managercon.ConnectAddresses(env.config.get("manager","addresses"))
+
+env.config.managercon = managercon
 
 heartbeat_table = {}
 
