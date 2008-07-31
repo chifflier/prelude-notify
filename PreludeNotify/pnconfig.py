@@ -9,6 +9,7 @@ themespath = siteconfig.prefix + "/share/prelude-notify/themes/"
 class PnConfig:
 	cp = SafeConfigParser()
 	configname = ""
+	_configtable = {} # configtable['manager_addresses'] = ['oldvalues', 'newvalues']
 	def __init__(self):
 		self.configname = "%s/.prelude-notifyrc" % os.getenv("HOME")
 		if not os.path.exists(self.configname):
@@ -38,6 +39,13 @@ class PnConfig:
 		return self.cp.get(section, key)
 
 	def set(self, section, key, value):
+		# We create a config table to watch what changed
+		# and update accordingly
+		section_key = "%s_%s" % (section, key)
+		self._configtable[section_key] = []
+		self._configtable[section_key].append(self.get(section, key))
+		self._configtable[section_key].append(value)
+
 		self.cp.set(section, key, value)
 		FILE = open(self.configname,"w")
 		self.cp.write(FILE)
