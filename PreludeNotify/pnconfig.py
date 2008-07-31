@@ -51,3 +51,9 @@ class PnConfig:
 		self.cp.write(FILE)
 		FILE.close()
 
+	def update(self, section_key):
+		if section_key == "manager_addresses":
+			self._configtable[section_key][0]
+
+
+

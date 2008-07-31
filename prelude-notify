@@ -4,7 +4,7 @@ import PreludeEasy
 from PreludeEasy import ClientEasy, ConnectionPool, Connection, IDMEF
 import gobject, gtk, pynotify
 
-from PreludeNotify import notifyaction, pnstatusicon, pnconfig, ProfileRegister, threshold, x11idle, heartbeat
+from PreludeNotify import ManagerConnection, notifyaction, pnstatusicon, pnconfig, ProfileRegister, threshold, x11idle, heartbeat
 
 import sys
 
@@ -56,60 +56,21 @@ def _expire_cb(item):
     env.notify.run(idmef.Get("alert.assessment.impact.severity"), item.messageid, src, desc)
 
 
-thresholding = threshold.Threshold(env.config.get("general","threshold_timeout"),_expire_cb)
+env.thresholding = threshold.Threshold(env.config.get("general","threshold_timeout"),_expire_cb)
 
 filter = env.config.get("idmef", "filter")
-criteria = None
+env.criteria = None
 if not filter == "":
-        criteria = PreludeEasy.IDMEFCriteria(filter)
+        env.criteria = PreludeEasy.IDMEFCriteria(filter)
 
 
 env.client = PreludeEasy.ClientEasy(env.config.get("idmef", "profile"), PreludeEasy.Client.IDMEF_READ)
 env.client.SetFlags(0)
 
-def doConnect(con):
-        #try:
-        con.Connect(env.client, ClientEasy.IDMEF_READ)
-        #except:
-        #       ProfileRegister.CreateProfile(c, ClientEasy.IDMEF_READ, env.config.get("idmef", "profile"))
-        #       sys.exit(1)
-
-        env.notify.run(None, None, "Manager Connection successfull", "With Prelude-Manager <b>%s</b>" % con.GetPeerAddr())
-
-def handleDisconnect(con, err=None):
-    env.notify.run("high", None, "Manager Connection interrupted", "With Prelude-Manager <b>%s</b>" % con.GetPeerAddr())
-    gobject.timeout_add(10000, doConnect, con)
+managercon = ManagerConnection.Session(env, hbmonitor)
+managercon.ConnectAdresses(env.config.get("manager","addresses"))
 
 heartbeat_table = {}
-
-def io_cb(fd, cond, con):
-    if cond & gobject.IO_IN:
-        try:
-                idmef = con.RecvIDMEF()
-        except PreludeEasy.PreludeError, err:
-            if err.GetErrorCode() == -8388614:
-                handleDisconnect(con)
-                return False
-
-        if idmef.Get("heartbeat.create_time"):
-                hbmonitor.heartbeat(idmef)
-
-        elif (not criteria) or (criteria.match(idmef)):
-                 thresholding.thresholdMessage(idmef)
-
-    if cond & gobject.IO_ERR or cond & gobject.IO_HUP:
-        handleDisconnect(con)
-        return False
-
-    return True
-
-
-manager_addresses = env.config.get("manager", "addresses").split(',')
-for addr in manager_addresses:
-        con = Connection(addr)
-        doConnect(con)
-        gobject.io_add_watch(con.GetFd(), gobject.IO_IN|gobject.IO_PRI|gobject.IO_HUP|gobject.IO_NVAL|gobject.IO_ERR, io_cb, con)
-
 
 env.client.Start()
 gobject.timeout_add(1000, idle_timer_cb)
