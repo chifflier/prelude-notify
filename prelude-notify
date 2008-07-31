@@ -43,26 +43,6 @@ def _expire_cb(item):
     else:
         cstr = ""
 
-    theme = env.config.get("ui", "theme")
-    baseuri = "file://" + pnconfig.themespath + theme + "/"
-    severity = idmef.Get("alert.assessment.impact.severity")
-
-    urgency = None
-    imageuri = None
-    for i in (("high", pynotify.URGENCY_CRITICAL),
-              ("medium", pynotify.URGENCY_NORMAL),
-              ("low", pynotify.URGENCY_LOW),
-              ("info", None)):
-        if severity == i[0]:
-            imageuri = baseuri + i[0] + ".png"
-            urgency = i[1]
-            break
-
-    if severity:
-        imageuri = "file://" + pnconfig.themespath + theme + "/" + severity + ".png"
-    else:
-        imageuri = None
-
     src = cstr + (idmef.Get("alert.source(0).node.address(0).address") or "(unknown)")
     cl = idmef.Get("alert.classification.text") or "(unknown)"
 
@@ -73,7 +53,7 @@ def _expire_cb(item):
     else:
         desc = cl
 
-    env.notify.run(imageuri, item.messageid, urgency, src, desc)
+    env.notify.run(idmef.Get("alert.assessment.impact.severity"), item.messageid, src, desc)
 
 
 thresholding = threshold.Threshold(env.config.get("general","threshold_timeout"),_expire_cb)
@@ -88,16 +68,16 @@ c = PreludeEasy.ClientEasy(env.config.get("idmef", "profile"), PreludeEasy.Clien
 c.SetFlags(0)
 
 def doConnect(con):
-	#try:
-	con.Connect(c, ClientEasy.IDMEF_READ)
-	#except:
-	#	ProfileRegister.CreateProfile(c, ClientEasy.IDMEF_READ, env.config.get("idmef", "profile"))
-	#	sys.exit(1)
+        #try:
+        con.Connect(c, ClientEasy.IDMEF_READ)
+        #except:
+        #       ProfileRegister.CreateProfile(c, ClientEasy.IDMEF_READ, env.config.get("idmef", "profile"))
+        #       sys.exit(1)
 
-        env.notify.run(None, None, pynotify.URGENCY_LOW, "Manager Connection successfull", "With Prelude-Manager <b>%s</b>" % con.GetPeerAddr())
+        env.notify.run(None, None, "Manager Connection successfull", "With Prelude-Manager <b>%s</b>" % con.GetPeerAddr())
 
 def handleDisconnect(con, err=None):
-    env.notify.run(None, None, pynotify.URGENCY_CRITICAL, "Manager Connection interrupted", "With Prelude-Manager <b>%s</b>" % con.GetPeerAddr())
+    env.notify.run("high", None, "Manager Connection interrupted", "With Prelude-Manager <b>%s</b>" % con.GetPeerAddr())
     gobject.timeout_add(10000, doConnect, con)
 
 heartbeat_table = {}

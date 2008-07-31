@@ -39,7 +39,26 @@ class NotifyNow:
 
                 n.close()
 
-        def run(self, imageuri, messageid, urgency, title, message):
+        def _severity_map(self, severity):
+                urgency = None
+                imageuri = None
+                baseuri = "file://" + pnconfig.themespath + self._env.config.get("ui", "theme") + "/"
+
+                for i in (("high", pynotify.URGENCY_CRITICAL),
+                          ("medium", pynotify.URGENCY_NORMAL),
+                          ("low", pynotify.URGENCY_LOW),
+                          ("info", None)):
+
+                        if severity == i[0]:
+                                imageuri = baseuri + i[0] + ".png"
+                                urgency = i[1]
+                                break
+
+                return (urgency, imageuri)
+
+        def run(self, severity, messageid, title, message):
+                urgency, imageuri = self._severity_map(severity)
+
                 n = pynotify.Notification(title, message, imageuri)
 
                 if urgency is not None:
@@ -76,7 +95,7 @@ class NotifyQueue(NotifyNow):
                         args = i._args
                         NotifyNow.run(self, *args)
 
-                NotifyNow.run(self, None, self._ag_queue, None,
+                NotifyNow.run(self, None, self._ag_queue,
                               "Events received while idle",
                               "%d events received while you were away for %d seconds" % (self._count, end - self._time))
 
@@ -88,11 +107,9 @@ class NotifyQueue(NotifyNow):
                 if self._count == 0:
                         self._time = time.time()
 
-                print kwargs.keys()
-
                 self._count += 1
                 if kwargs["aggregate"]:
-                        self._ag_queue.append(args[1])
+                        self._ag_queue = self._ag_queue + args[1]
                 else:
                         self._no_ag_queue.append(QueuedNotification(*args))
 
@@ -101,8 +118,8 @@ class PreludeNotify(NotifyQueue, NotifyNow):
         def __init__(self, env):
                 NotifyQueue.__init__(self, env)
 
-        def run(self, imageuri, messageid, urgency, title, message, aggregate=True):
+        def run(self, severity, messageid, title, message, aggregate=True):
                 if not self._env.is_idle:
-                        NotifyNow.run(self, imageuri, messageid, urgency, title, message)
+                        NotifyNow.run(self, severity, messageid, title, message)
                 else:
-                        NotifyQueue.run(self, imageuri, messageid, urgency, title, message, aggregate=aggregate)
+                        NotifyQueue.run(self, severity, messageid, title, message, aggregate=aggregate)

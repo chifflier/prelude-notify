@@ -43,17 +43,16 @@ class HeartbeatSource:
                 return str
 
         def _heartbeat_timer_cb(self):
-                print "is dead"
                 self._is_dead = True
 
-                self._env.notify.run(None, None, pynotify.URGENCY_CRITICAL, "Missing agent",
+                self._env.notify.run("high", None, "Missing agent",
                                      "No heartbeat received for %s" % self._genid(), aggregate=False)
                 return False
 
         def update(self, idmef):
                 if self._is_dead:
                         self._is_dead = False
-                        self._env.notify.run(None, None, None, "Agent back online",
+                        self._env.notify.run(None, None, "Agent back online",
                                              "Missing analyzer %s is back online" % self._genid(), aggregate=False)
 
                 if self._timer:
@@ -72,7 +71,6 @@ class HeartbeatMonitor:
 
         def heartbeat(self, idmef):
             analyzerid = idmef.Get("heartbeat.analyzer(-1).analyzerid")
-            print "heartbeat", analyzerid
 
             if self._table.has_key(analyzerid):
                 self._table[analyzerid].update(idmef)
