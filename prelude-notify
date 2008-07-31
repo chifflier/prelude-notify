@@ -4,7 +4,7 @@ import PreludeEasy
 from PreludeEasy import ClientEasy, ConnectionPool, Connection, IDMEF
 import gobject, gtk, pynotify
 
-from PreludeNotify import notifyaction, pnstatusicon, pnconfig, ProfileRegister, threshold, x11idle
+from PreludeNotify import notifyaction, pnstatusicon, pnconfig, ProfileRegister, threshold, x11idle, heartbeat
 
 import sys
 
@@ -15,16 +15,18 @@ class Env:
 env = Env()
 env.gloop = gobject.MainLoop()
 env.config = pnconfig.PnConfig()
+env.notify = notifyaction.PreludeNotify(env)
 env.is_idle = False
 
 idle = x11idle.X11Idle()
-notify = notifyaction.PreludeNotify(env)
+hbmonitor = heartbeat.HeartbeatMonitor(env)
 statusicon = pnstatusicon.PreludeStatusIcon(env.gloop, env.config)
+
 
 def idle_timer_cb():
         if idle.IdleTimeGet() < int(env.config.get("general","X11idle_timeout")):
                 env.is_idle = False
-                notify.flush()
+                env.notify.flush()
                 statusicon.SeenAlerts()
         else:
                 env.is_idle = True
@@ -71,7 +73,7 @@ def _expire_cb(item):
     else:
         desc = cl
 
-    notify.run(imageuri, item.messageid, urgency, src, desc)
+    env.notify.run(imageuri, item.messageid, urgency, src, desc)
 
 
 thresholding = threshold.Threshold(env.config.get("general","threshold_timeout"),_expire_cb)
@@ -92,11 +94,13 @@ def doConnect(con):
 	#	ProfileRegister.CreateProfile(c, ClientEasy.IDMEF_READ, env.config.get("idmef", "profile"))
 	#	sys.exit(1)
 
-	notify.run(None, None, pynotify.URGENCY_LOW, "Manager Connection successfull", "With Prelude-Manager <b>%s</b>" % con.GetPeerAddr())
+        env.notify.run(None, None, pynotify.URGENCY_LOW, "Manager Connection successfull", "With Prelude-Manager <b>%s</b>" % con.GetPeerAddr())
 
 def handleDisconnect(con, err=None):
-    notify.run(None, None, pynotify.URGENCY_CRITICAL, "Manager Connection interrupted", "With Prelude-Manager <b>%s</b>" % con.GetPeerAddr())
+    env.notify.run(None, None, pynotify.URGENCY_CRITICAL, "Manager Connection interrupted", "With Prelude-Manager <b>%s</b>" % con.GetPeerAddr())
     gobject.timeout_add(10000, doConnect, con)
+
+heartbeat_table = {}
 
 def io_cb(fd, cond, con):
     if cond & gobject.IO_IN:
@@ -107,16 +111,11 @@ def io_cb(fd, cond, con):
                 handleDisconnect(con)
                 return False
 
-        if not idmef.Get("heartbeat.create_time"):
-            thresholding.thresholdMessage(idmef)
+        if idmef.Get("heartbeat.create_time"):
+                hbmonitor.heartbeat(idmef)
 
-        ret = c.RecvIDMEF(idmef, 100)
-        if ret and not idmef.Get("heartbeat.create_time"):
-                if not criteria:
-                        thresholding.thresholdMessage(idmef)
-                else:
-                        if criteria.match(idmef):
-                                thresholding.thresholdMessage(idmef)
+        elif (not criteria) or (criteria.match(idmef)):
+                 thresholding.thresholdMessage(idmef)
 
     if cond & gobject.IO_ERR or cond & gobject.IO_HUP:
         handleDisconnect(con)

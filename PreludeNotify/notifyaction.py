@@ -3,6 +3,7 @@ import pynotify
 import webbrowser
 import urllib
 import pnconfig
+import time
 
 
 def PrewikkaURL(conf, idlist):
@@ -53,33 +54,55 @@ class NotifyNow:
 
                 n.show()
 
+class QueuedNotification:
+        def __init__(self, *args):
+                self._time = time.time()
+                self._args = args
+
 class NotifyQueue(NotifyNow):
         def __init__(self, env):
                 NotifyNow.__init__(self, env)
-                self._queue = []
+                self._ag_queue = []
+                self._no_ag_queue = []
                 self._count = 0
 
         def flush(self):
                 if self._count == 0:
                         return
 
-                NotifyNow.run(self, None, self._queue, None, "Events received while idle",
-                              "%d events received while you were away" % self._count)
+                end = time.time()
+
+                for i in self._no_ag_queue:
+                        args = i._args
+                        NotifyNow.run(self, *args)
+
+                NotifyNow.run(self, None, self._ag_queue, None,
+                              "Events received while idle",
+                              "%d events received while you were away for %d seconds" % (self._count, end - self._time))
 
                 self._count = 0
-                self._queue = []
+                self._ag_queue = []
+                self._no_ag_queue = []
 
-        def run(self, imageuri, messageid, urgency, title, message):
+        def run(self, *args, **kwargs):
+                if self._count == 0:
+                        self._time = time.time()
+
+                print kwargs.keys()
+
                 self._count += 1
-                self._queue = self._queue + messageid
+                if kwargs["aggregate"]:
+                        self._ag_queue.append(args[1])
+                else:
+                        self._no_ag_queue.append(QueuedNotification(*args))
 
 
 class PreludeNotify(NotifyQueue, NotifyNow):
         def __init__(self, env):
                 NotifyQueue.__init__(self, env)
 
-        def run(self, imageuri, messageid, urgency, title, message):
+        def run(self, imageuri, messageid, urgency, title, message, aggregate=True):
                 if not self._env.is_idle:
                         NotifyNow.run(self, imageuri, messageid, urgency, title, message)
                 else:
-                        NotifyQueue.run(self, imageuri, messageid, urgency, title, message)
+                        NotifyQueue.run(self, imageuri, messageid, urgency, title, message, aggregate=aggregate)
