@@ -20,6 +20,8 @@ class PreludeStatusIcon:
                 m = gtk.Menu()
 
                 item = gtk.ImageMenuItem(gtk.STOCK_EXECUTE, 'Configure...')
+		label = item.get_children()[0]
+		label.set_label("Configure...")
                 item.connect('activate', self.configure)
                 item.show()
                 m.append(item)
