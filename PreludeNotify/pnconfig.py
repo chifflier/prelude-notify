@@ -1,4 +1,6 @@
 import os
+import PreludeEasy
+
 from PreludeNotify import siteconfig
 from ConfigParser import SafeConfigParser
 
@@ -53,9 +55,21 @@ class PnConfig:
 
 	def update(self):
 		for section_key in self._configtable:
+			if section_key == "idmef_profile":
+				old = self._configtable[section_key][0]
+				new = self._configtable[section_key][1]
+				if old != new:
+					self.client = None
+					self.client = PreludeEasy.ClientEasy(new, PreludeEasy.Client.IDMEF_READ)
+					self.client.SetFlags(0)
+					self.client.Start()
+					self.managercon.delCon()
+					self.managercon.ConnectAddresses(self._configtable["manager_addresses"][0])
 			if section_key == "manager_addresses":
 				old = self._configtable[section_key][0]
 				new = self._configtable[section_key][1]
 				if old != new:
 					self.managercon.delCon()
 					self.managercon.ConnectAddresses(new)
+
+
