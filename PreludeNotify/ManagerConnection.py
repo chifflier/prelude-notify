@@ -1,7 +1,7 @@
-from PreludeEasy import ClientEasy, Connection
+from PreludeEasy import ClientEasy, Connection, PreludeError
+from PreludeNotify import ErrorDialog
 
 import gobject
-
 import os
 
 class Session:
@@ -13,15 +13,23 @@ class Session:
                 self.hbmonitor = hbmonitor
 
         def doConnect(self):
-                #try:
-                self.con.Connect(self.env.client, ClientEasy.IDMEF_READ)
-                #except:
-                #       ProfileRegister.CreateProfile(c, ClientEasy.IDMEF_READ, env.config.get("idmef", "profile"))
-                #       sys.exit(1)
+                try:
+                        self.con.Connect(self.env.client, ClientEasy.IDMEF_READ)
+
+                #except PreludeError.PROFILE:
+                #        ErrorDialog.CreateProfile(c, ClientEasy.IDMEF_READ, env.config.get("idmef", "profile"))
+                #        return False
+
+                except PreludeError, err:
+                        ErrorDialog.ErrorDialog(str(err))
+                        return True
+
                 self.env.notify.run(None, None, "Manager Connection successfull", "With Prelude-Manager <b>%s</b>" % self.con.GetPeerAddr())
 
-        def handleDisconnect(self, err=None):
-                self.env.notify.run("high", None, "Manager Connection interrupted", "With Prelude-Manager <b>%s</b>" % self.con.GetPeerAddr())
+        def handleDisconnect(self, err=""):
+                if err:
+                        err = ": " + err
+                self.env.notify.run("high", None, "Manager Connection interrupted", "With Prelude-Manager <b>%s</b>%s" % (self.con.GetPeerAddr(), err))
                 gobject.timeout_add(10000, self.doConnect)
 
         def ConnectAddresses(self, manager_addresses):
@@ -39,10 +47,9 @@ class Session:
                 if cond & gobject.IO_IN:
                         try:
                                 idmef = con.RecvIDMEF()
-                        except PreludeEasy.PreludeError, err:
-                                if err.GetErrorCode() == -8388614:
-                                        self.handleDisconnect(con)
-                                        return False
+                        except PreludeError, err:
+                                self.handleDisconnect(con, str(err))
+                                return False
 
                         if idmef.Get("heartbeat.create_time"):
                                 self.hbmonitor.heartbeat(idmef)
