@@ -1,8 +1,6 @@
 import os
 import PreludeEasy
 
-import ErrorDialog
-
 from PreludeNotify import siteconfig
 from ConfigParser import SafeConfigParser
 
@@ -65,10 +63,7 @@ class PnConfig:
 					self.client = None
 					self.client = PreludeEasy.ClientEasy(new, PreludeEasy.Client.IDMEF_READ)
 					self.client.SetFlags(0)
-					try:
-						self.client.Start()
-					except:
-						ErrorDialog.CreateProfile(new, manager_addr)
+					self.client.Start()
 
 					self.managercon.delCon()
 					self.managercon.ConnectAddresses(manager_addr)
