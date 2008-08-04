@@ -1,6 +1,8 @@
 import os
 import PreludeEasy
 
+import ErrorDialog
+
 from PreludeNotify import siteconfig
 from ConfigParser import SafeConfigParser
 
@@ -59,12 +61,18 @@ class PnConfig:
 				old = self._configtable[section_key][0]
 				new = self._configtable[section_key][1]
 				if old != new:
+					manager_addr = self._configtable["manager_addresses"][1]
 					self.client = None
 					self.client = PreludeEasy.ClientEasy(new, PreludeEasy.Client.IDMEF_READ)
 					self.client.SetFlags(0)
-					self.client.Start()
+					try:
+						self.client.Start()
+					except:
+						ErrorDialog.CreateProfile(new, manager_addr)
+
 					self.managercon.delCon()
-					self.managercon.ConnectAddresses(self._configtable["manager_addresses"][0])
+					self.managercon.ConnectAddresses(manager_addr)
+
 			if section_key == "manager_addresses":
 				old = self._configtable[section_key][0]
 				new = self._configtable[section_key][1]

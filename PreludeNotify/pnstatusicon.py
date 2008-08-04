@@ -1,6 +1,8 @@
 import gtk
 import gobject
+
 import pnconfig
+
 
 class PreludeStatusIcon:
 
