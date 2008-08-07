@@ -74,16 +74,21 @@ class PreludeStatusIcon:
                 idmef_filter_entry.set_text(self.config.get("idmef", "filter"))
                 table.attach(idmef_filter_entry, 1, 2, 2, 3)
 		idlecheck = gtk.CheckButton("Idle: ")
+		idlecheck.connect('toggled', self.idle_toggled, idle_entry)
 		idletime = self.config.get("general", "x11idle_timeout")
 		if idletime:
 			idlecheck.set_active(True)
+			idle_entry.set_editable(True)
 		else:
 			idlecheck.set_active(False)
+			idle_entry.set_editable(False)
                 table.attach(idlecheck, 0, 1, 3, 4)
                 table.attach(idle_entry, 1, 2, 3, 4)
+                idle_entry.set_text(self.config.get("general", "x11idle_timeout"))
 		threshold = gtk.Label("Threshold: ")
                 table.attach(threshold, 0, 1, 4, 5)
                 table.attach(threshold_entry, 1, 2, 4, 5)
+                threshold_entry.set_text(self.config.get("general", "threshold_timeout"))
                 label = gtk.Label("Prewikka URL: ")
                 table.attach(label, 0, 1, 5, 6)
                 prewikka_url_entry.set_text(self.config.get("prewikka", "url"))
@@ -102,6 +107,11 @@ class PreludeStatusIcon:
                         self.config.set("idmef", "filter", idmef_filter_entry.get_text())
                         self.config.set("prewikka", "url", prewikka_url_entry.get_text())
                         self.config.set("ui", "theme", theme_entry.get_text())
+                        self.config.set("general", "threshold_timeout", threshold_entry.get_text())
+			if idlecheck.get_active():
+                        	self.config.set("general", "x11idle_timeout", idle_entry.get_text())
+			else:
+                        	self.config.set("general", "x11idle_timeout", "")
 
 			self.config.update()
 
@@ -127,3 +137,11 @@ class PreludeStatusIcon:
         def quit(self, widget):
                 self.gloop.quit()
 
+	#
+	# Callbacks
+	#
+	def idle_toggled(self, widget, idle_entry):
+		if widget.get_active():
+			idle_entry.set_editable(True)
+		else:
+			idle_entry.set_editable(False)
