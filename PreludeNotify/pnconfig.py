@@ -62,11 +62,12 @@ class PnConfig:
                                         for addr in manager_addr.split(","):
                                                 self.env.managercon.addAddress(addr)
 
+
                         if section_key == "manager_addresses":
                                 old = self._configtable[section_key][0]
                                 new = self._configtable[section_key][1]
                                 if old != new:
-                                        self.env.managercon.delCon(old)
-                                        self.env.managercon.addCon(new)
+                                        self.env.managercon.delAddress(old)
+                                        self.env.managercon.addAddress(new)
 
 
