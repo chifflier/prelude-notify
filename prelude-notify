@@ -14,12 +14,12 @@ class Env:
 
 env = Env()
 env.gloop = gobject.MainLoop()
-env.config = pnconfig.PnConfig()
+env.config = pnconfig.PnConfig(env)
 env.notify = notifyaction.PreludeNotify(env)
+env.hbmonitor = heartbeat.HeartbeatMonitor(env)
 env.is_idle = False
 
 idle = x11idle.X11Idle()
-hbmonitor = heartbeat.HeartbeatMonitor(env)
 statusicon = pnstatusicon.PreludeStatusIcon(env.gloop, env.config)
 
 
@@ -65,18 +65,10 @@ env.criteria = None
 if not filter == "":
         env.criteria = PreludeEasy.IDMEFCriteria(filter)
 
+env.managercon = ManagerConnection.Session(env, env.config.get("idmef", "profile"))
+for addr in env.config.get("manager","addresses").split(","):
+        env.managercon.addAddress(addr)
 
-env.client = PreludeEasy.ClientEasy(env.config.get("idmef", "profile"), PreludeEasy.Client.IDMEF_READ)
-env.client.SetFlags(0)
-
-managercon = ManagerConnection.Session(env, hbmonitor)
-managercon.ConnectAddresses(env.config.get("manager","addresses"))
-
-env.config.managercon = managercon
-
-heartbeat_table = {}
-
-env.client.Start()
 gobject.timeout_add(1000, idle_timer_cb)
 env.gloop.run()
 
