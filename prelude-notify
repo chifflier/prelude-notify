@@ -58,7 +58,9 @@ def _expire_cb(item):
     env.notify.run(idmef.Get("alert.assessment.impact.severity"), item.messageid, src, desc)
 
 
-env.thresholding = threshold.Threshold(env.config.get("general","threshold_timeout"),_expire_cb)
+env.expire_cb = _expire_cb
+
+env.thresholding = threshold.Threshold(env.config.get("general","threshold_timeout"), env.expire_cb)
 
 filter = env.config.get("idmef", "filter")
 env.criteria = None

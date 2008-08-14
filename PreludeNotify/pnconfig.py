@@ -51,6 +51,7 @@ class PnConfig:
                 self._configtable[section_key].append(value)
 
         def update(self):
+
                 for section_key in self._configtable:
                         if section_key == "idmef_profile":
                                 old = self._configtable[section_key][0]
@@ -69,5 +70,33 @@ class PnConfig:
                                 if old != new:
                                         self.env.managercon.delAddress(old)
                                         self.env.managercon.addAddress(new)
+
+			if section_key == "general_X11idle_timeout":
+                                new = self._configtable[section_key][1]
+				self.cp.set("general", "X11idle_timeout", new)
+
+			if section_key == "idmef_filter":
+                                old = self._configtable[section_key][0]
+                                new = self._configtable[section_key][1]
+				self.cp.set("idmef", "filter", new)
+				if old != new:
+					if not new == "":
+					        env.criteria = PreludeEasy.IDMEFCriteria(new)
+
+			if section_key == "general_threshold_timeout":
+                                old = self._configtable[section_key][0]
+                                new = self._configtable[section_key][1]
+				self.cp.set("general", "threshold_timeout", new)
+				if old != new:
+					env.thresholding = threshold.Threshold(new, env.expire_cb)
+
+			if section_key == "prewikka_url":
+                                new = self._configtable[section_key][1]
+				self.cp.set("general", "threshold_timeout", new)
+
+			if section_key == "ui_theme":
+                                new = self._configtable[section_key][1]
+				self.cp.set("ui", "theme", new)
+
 
 
