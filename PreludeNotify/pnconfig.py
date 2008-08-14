@@ -62,7 +62,7 @@ class PnConfig(SafeConfigParser):
                 return SafeConfigParser.set(self, section, key, value)
 
         def _update(self):
-                if self._updated.has_key("profile") or self._updated.has_key("manager"):
+                if self._updated.has_key("profile") or self._updated.has_key("addresses"):
                         self.env.managercon.close()
 
                         self.env.managercon = Session(self.env, self.get("idmef", "profile"))
