@@ -4,7 +4,7 @@ import PreludeEasy
 from PreludeEasy import ClientEasy, ConnectionPool, Connection, IDMEF
 import gobject, gtk, pynotify
 
-from PreludeNotify import ManagerConnection, notifyaction, pnstatusicon, pnconfig, ProfileRegister, threshold, x11idle, heartbeat
+from PreludeNotify import ManagerConnection, notifyaction, pnstatusicon, pnconfig, threshold, x11idle, heartbeat
 
 import sys
 
