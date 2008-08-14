@@ -27,6 +27,7 @@ setup(name="prelude-notify",
       url = "http://www.prelude-ids.com",
       packages=[ 'PreludeNotify' ],
       data_files=[ ("share/prelude-notify/themes/default", glob.glob("pixmaps/themes/default/*")),
-                   ("share/prelude-notify/tray", glob.glob("pixmaps/tray/*")) ],
+                   ("share/prelude-notify/tray", glob.glob("pixmaps/tray/*")),
+                   ("share/applications", ["prelude-notify.desktop"]) ],
       scripts=[ "prelude-notify" ],
       cmdclass={ 'install': my_install } )
