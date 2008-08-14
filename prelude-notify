@@ -82,9 +82,10 @@ env.expire_cb = _expire_cb
 env.thresholding = threshold.Threshold(env.config.get("general","threshold_timeout"), env.expire_cb)
 
 filter = env.config.get("idmef", "filter")
-env.criteria = None
 if filter != "":
         env.criteria = PreludeEasy.IDMEFCriteria(filter)
+else:
+        env.criteria = None
 
 env.managercon = ManagerConnection.Session(env, env.config.get("idmef", "profile"))
 for addr in env.config.get("manager","addresses").split(","):

@@ -58,7 +58,7 @@ class SingleConnection:
                         if idmef.Get("heartbeat.create_time"):
                                 self.env.hbmonitor.heartbeat(idmef)
 
-                        elif (not self.env.criteria) or (self.env.criteria.match(idmef)):
+                        elif self.env.criteria is None or self.env.criteria.Match(idmef):
                                 self.env.thresholding.thresholdMessage(idmef)
 
                 if cond & gobject.IO_ERR or cond & gobject.IO_HUP:
