@@ -60,7 +60,7 @@ class Session:
         _addrevents = {}
 
         def __init__(self, env, profile):
-                print "init"
+                print "Create client session"
                 self.env = env
                 self.client = PreludeEasy.ClientEasy(profile, PreludeEasy.Client.IDMEF_READ)
                 self.client.SetFlags(0)

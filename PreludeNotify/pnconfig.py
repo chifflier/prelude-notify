@@ -50,22 +50,22 @@ class PnConfig:
                 self._configtable[section_key].append(self.get(section, key))
                 self._configtable[section_key].append(value)
 
-
         def update(self):
                 for section_key in self._configtable:
                         if section_key == "idmef_profile":
                                 old = self._configtable[section_key][0]
                                 new = self._configtable[section_key][1]
+				self.cp.set("idmef", "profile", new)
                                 if old != new:
                                         manager_addr = self._configtable["manager_addresses"][1]
                                         self.env.managercon = Session(self.env, new)
                                         for addr in manager_addr.split(","):
                                                 self.env.managercon.addAddress(addr)
 
-
                         if section_key == "manager_addresses":
                                 old = self._configtable[section_key][0]
                                 new = self._configtable[section_key][1]
+				self.cp.set("manager", "addresses", new)
                                 if old != new:
                                         self.env.managercon.delAddress(old)
                                         self.env.managercon.addAddress(new)
