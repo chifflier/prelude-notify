@@ -4,7 +4,7 @@ import os, glob
 from distutils.core import setup
 from distutils.command.install import install
 
-_VERSION="0.0.0"
+_VERSION="0.9.0-svn"
 
 class my_install(install):
    def init_siteconfig(self):
