@@ -24,15 +24,15 @@ statusicon = pnstatusicon.PreludeStatusIcon(env.gloop, env.config)
 
 
 def idle_timer_cb():
-	idle_timeout = env.config.get("general","X11idle_timeout")
-	if idle_timeout:
-        	if idle.IdleTimeGet() < int(env.config.get("general","X11idle_timeout")):
-        	        env.is_idle = False
-        	        env.notify.flush()
-        	        statusicon.SeenAlerts()
-        	else:
-        	        env.is_idle = True
-        	        statusicon.MissedAlerts()
+        idle_timeout = env.config.get("general","x11_idle_timeout")
+        if idle_timeout:
+                if idle.IdleTimeGet() < int(env.config.get("general","x11_idle_timeout")):
+                        env.is_idle = False
+                        env.notify.flush()
+                        statusicon.SeenAlerts()
+                else:
+                        env.is_idle = True
+                        statusicon.MissedAlerts()
 
         return True
 
