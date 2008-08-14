@@ -12,18 +12,18 @@ class PreludeStatusIcon:
                 self.config = config
                 self.gloop = gloop
 
-	def MissedAlerts(self):
+        def MissedAlerts(self):
                 self.icon.set_from_file(pnconfig.iconbad)
 
-	def SeenAlerts(self):
+        def SeenAlerts(self):
                 self.icon.set_from_file(pnconfig.iconok)
 
         def menu(self, icon, event_button, event_time):
                 m = gtk.Menu()
 
                 item = gtk.ImageMenuItem(gtk.STOCK_EXECUTE, 'Configure...')
-		label = item.get_children()[0]
-		label.set_label("Configure...")
+                label = item.get_children()[0]
+                label.set_label("Configure...")
                 item.connect('activate', self.configure)
                 item.show()
                 m.append(item)
@@ -73,19 +73,19 @@ class PreludeStatusIcon:
                 table.attach(label, 0, 1, 2, 3)
                 idmef_filter_entry.set_text(self.config.get("idmef", "filter"))
                 table.attach(idmef_filter_entry, 1, 2, 2, 3)
-		idlecheck = gtk.CheckButton("Idle: ")
-		idlecheck.connect('toggled', self.idle_toggled, idle_entry)
-		idletime = self.config.get("general", "x11idle_timeout")
-		if idletime:
-			idlecheck.set_active(True)
-			idle_entry.set_editable(True)
-		else:
-			idlecheck.set_active(False)
-			idle_entry.set_editable(False)
+                idlecheck = gtk.CheckButton("Idle: ")
+                idlecheck.connect('toggled', self.idle_toggled, idle_entry)
+                idletime = self.config.get("general", "x11_idle_timeout")
+                if idletime:
+                        idlecheck.set_active(True)
+                        idle_entry.set_editable(True)
+                else:
+                        idlecheck.set_active(False)
+                        idle_entry.set_editable(False)
                 table.attach(idlecheck, 0, 1, 3, 4)
                 table.attach(idle_entry, 1, 2, 3, 4)
-                idle_entry.set_text(self.config.get("general", "x11idle_timeout"))
-		threshold = gtk.Label("Threshold: ")
+                idle_entry.set_text(self.config.get("general", "x11_idle_timeout"))
+                threshold = gtk.Label("Threshold: ")
                 table.attach(threshold, 0, 1, 4, 5)
                 table.attach(threshold_entry, 1, 2, 4, 5)
                 threshold_entry.set_text(self.config.get("general", "threshold_timeout"))
@@ -108,40 +108,40 @@ class PreludeStatusIcon:
                         self.config.set("prewikka", "url", prewikka_url_entry.get_text())
                         self.config.set("ui", "theme", theme_entry.get_text())
                         self.config.set("general", "threshold_timeout", threshold_entry.get_text())
-			if idlecheck.get_active():
-                        	self.config.set("general", "x11idle_timeout", idle_entry.get_text())
-			else:
-                        	self.config.set("general", "x11idle_timeout", "")
+                        if idlecheck.get_active():
+                                self.config.set("general", "x11_idle_timeout", idle_entry.get_text())
+                        else:
+                                self.config.set("general", "x11_idle_timeout", "")
 
-			self.config.update()
+                        self.config.update()
 
                 dialog.destroy()
 
         def about(self, widget):
                 dialog = gtk.AboutDialog()
-		try:
-                	dialog.set_program_name("Prelude Notify")
-		except AttributeError:
-			print "Cannot add the dialog program name"
-		try:
-                	dialog.set_copyright("Sebastien Tricaud (c) 2008")
-		except AttributeError:
-			print "Cannot add the dialog copyright"
-		try:
-                	dialog.set_comments("Systray Notification for Prelude IDS")
-		except AttributeError:
-			print "Cannot add the dialog comments"
+                try:
+                        dialog.set_program_name("Prelude Notify")
+                except AttributeError:
+                        print "Cannot add the dialog program name"
+                try:
+                        dialog.set_copyright("Sebastien Tricaud (c) 2008")
+                except AttributeError:
+                        print "Cannot add the dialog copyright"
+                try:
+                        dialog.set_comments("Systray Notification for Prelude IDS")
+                except AttributeError:
+                        print "Cannot add the dialog comments"
                 dialog.run()
                 dialog.destroy()
 
         def quit(self, widget):
                 self.gloop.quit()
 
-	#
-	# Callbacks
-	#
-	def idle_toggled(self, widget, idle_entry):
-		if widget.get_active():
-			idle_entry.set_editable(True)
-		else:
-			idle_entry.set_editable(False)
+        #
+        # Callbacks
+        #
+        def idle_toggled(self, widget, idle_entry):
+                if widget.get_active():
+                        idle_entry.set_editable(True)
+                else:
+                        idle_entry.set_editable(False)
