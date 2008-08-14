@@ -25,9 +25,9 @@ class ThresholdItem:
 class Threshold:
     def __init__(self, threshold_timeout, expire_cb):
         self._limited = { }
-        self._timeout = int(threshold_timeout) * 1000
         self._expire_cb = expire_cb
         self._limit_path = [ "alert.source(*).node.address(*).address", "alert.classification.text" ]
+        self.setExpire(threshold_timeout)
 
     def _timer_cb(self, item):
         self._limited.pop(item.key)
@@ -52,6 +52,9 @@ class Threshold:
 
         gobject.source_remove(item.timer)
         self._setTimer(item)
+
+    def setExpire(self, threshold_timeout):
+        self._timeout = int(threshold_timeout) * 1000
 
     def thresholdMessage(self, idmef):
         rl = []
