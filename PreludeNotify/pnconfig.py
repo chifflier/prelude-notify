@@ -55,14 +55,11 @@ class PnConfig(SafeConfigParser):
 
         def set(self, section, key, value):
                 if value != SafeConfigParser.get(self, section, key):
-                        if not self._updated.has_key(key):
-                                self._updated[key] = {}
-
                         self._updated[key] = value
 
                 return SafeConfigParser.set(self, section, key, value)
 
-        def update(self):
+        def _update(self):
                 if self._updated.has_key("profile") or self._updated.has_key("manager"):
                         self.env.managercon.close()
 
@@ -76,12 +73,18 @@ class PnConfig(SafeConfigParser):
                                         self.env.criteria = PreludeEasy.IDMEFCriteria(self._updated["filter"])
                                 except PreludeEasy.PreludeError, e:
                                         ErrorDialog.ErrorDialog(str(e))
-                                        return
+                                        raise
                         else:
                                 self.env.criteria = None
 
                 if self._updated.has_key("threshold_timeout"):
                         self.env.thresholding.setExpire(self._updated["threshold_timeout"])
 
+        def update(self):
+                try:
+                        self._update()
+                except:
+                        self._updated = {}
+                        return
+
                 self.write(open(self._configname, "w"))
-                self._updated = {}
