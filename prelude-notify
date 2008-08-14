@@ -83,7 +83,7 @@ env.thresholding = threshold.Threshold(env.config.get("general","threshold_timeo
 
 filter = env.config.get("idmef", "filter")
 env.criteria = None
-if not filter == "":
+if filter != "":
         env.criteria = PreludeEasy.IDMEFCriteria(filter)
 
 env.managercon = ManagerConnection.Session(env, env.config.get("idmef", "profile"))

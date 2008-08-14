@@ -72,7 +72,11 @@ class PnConfig(SafeConfigParser):
 
                 if self._updated.has_key("filter") :
                         if self._updated["filter"] != "":
-                                self.env.criteria = PreludeEasy.IDMEFCriteria(self._updated["idmef"]["filter"])
+                                try:
+                                        self.env.criteria = PreludeEasy.IDMEFCriteria(self._updated["filter"])
+                                except PreludeEasy.PreludeError, e:
+                                        ErrorDialog.ErrorDialog(str(e))
+                                        return
                         else:
                                 self.env.criteria = None
 
