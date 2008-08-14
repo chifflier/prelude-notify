@@ -23,7 +23,7 @@ class PnConfig:
                         FILE.write("# Time in seconds for alert grouping\n")
                         FILE.write("threshold_timeout=5\n")
                         FILE.write("# Time in seconds before thinking you are away from keyboard and missing alerts\n")
-                        FILE.write("x11idle_timeout=5\n")
+                        FILE.write("x11_idle_timeout=5\n")
                         FILE.write("[idmef]\n")
                         FILE.write("profile=prelude-notify\n")
                         FILE.write("filter=\n\n")
@@ -56,47 +56,49 @@ class PnConfig:
                         if section_key == "idmef_profile":
                                 old = self._configtable[section_key][0]
                                 new = self._configtable[section_key][1]
-				self.cp.set("idmef", "profile", new)
+                                self.cp.set("idmef", "profile", new)
                                 if old != new:
                                         manager_addr = self._configtable["manager_addresses"][1]
+                                        self.env.managercon.close()
                                         self.env.managercon = Session(self.env, new)
+
                                         for addr in manager_addr.split(","):
                                                 self.env.managercon.addAddress(addr)
 
                         if section_key == "manager_addresses":
                                 old = self._configtable[section_key][0]
                                 new = self._configtable[section_key][1]
-				self.cp.set("manager", "addresses", new)
+                                self.cp.set("manager", "addresses", new)
                                 if old != new:
                                         self.env.managercon.delAddress(old)
                                         self.env.managercon.addAddress(new)
 
-			if section_key == "general_X11idle_timeout":
+                        if section_key == "general_x11_idle_timeout":
                                 new = self._configtable[section_key][1]
-				self.cp.set("general", "X11idle_timeout", new)
+                                self.cp.set("general", "x11_idle_timeout", new)
 
-			if section_key == "idmef_filter":
+                        if section_key == "idmef_filter":
                                 old = self._configtable[section_key][0]
                                 new = self._configtable[section_key][1]
-				self.cp.set("idmef", "filter", new)
-				if old != new:
-					if not new == "":
-					        env.criteria = PreludeEasy.IDMEFCriteria(new)
+                                self.cp.set("idmef", "filter", new)
+                                if old != new:
+                                        if not new == "":
+                                                env.criteria = PreludeEasy.IDMEFCriteria(new)
 
-			if section_key == "general_threshold_timeout":
+                        if section_key == "general_threshold_timeout":
                                 old = self._configtable[section_key][0]
                                 new = self._configtable[section_key][1]
-				self.cp.set("general", "threshold_timeout", new)
-				if old != new:
-					env.thresholding = threshold.Threshold(new, env.expire_cb)
+                                self.cp.set("general", "threshold_timeout", new)
+                                if old != new:
+                                        env.thresholding = threshold.Threshold(new, env.expire_cb)
 
-			if section_key == "prewikka_url":
+                        if section_key == "prewikka_url":
                                 new = self._configtable[section_key][1]
-				self.cp.set("general", "threshold_timeout", new)
+                                self.cp.set("prewikka", "url", new)
 
-			if section_key == "ui_theme":
+                        if section_key == "ui_theme":
                                 new = self._configtable[section_key][1]
-				self.cp.set("ui", "theme", new)
+                                self.cp.set("ui", "theme", new)
 
 
 
