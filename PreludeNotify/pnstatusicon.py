@@ -1,5 +1,6 @@
 # Copyright (C) 2008 PreludeIDS Technologies. All Rights Reserved.
 # Author: Sebastien Tricaud <toady@inl.fr>
+#         Alexandre De Dommelin <adedommelin@tuxz.net> 
 #
 # This file is part of the Prelude-Notify program.
 #
@@ -26,16 +27,16 @@ import pnconfig
 class PreludeStatusIcon:
 
         def __init__(self, gloop, config):
-                self.icon = gtk.status_icon_new_from_file(pnconfig.iconok)
-                self.icon.connect('popup-menu', self.menu)
                 self.config = config
                 self.gloop = gloop
+                self.icon = gtk.status_icon_new_from_file(self.config.getIconOk())
+                self.icon.connect('popup-menu', self.menu)
 
         def MissedAlerts(self):
-                self.icon.set_from_file(pnconfig.iconbad)
+                self.icon.set_from_file(self.config.getIconBad())
 
         def SeenAlerts(self):
-                self.icon.set_from_file(pnconfig.iconok)
+                self.icon.set_from_file(self.config.getIconOk())
 
         def menu(self, icon, event_button, event_time):
                 m = gtk.Menu()
@@ -143,7 +144,7 @@ class PreludeStatusIcon:
                 except AttributeError:
                         print "Cannot add the dialog program name"
                 try:
-                        dialog.set_copyright("Sebastien Tricaud (c) 2008")
+                        dialog.set_copyright("Sebastien Tricaud, Alexandre De Dommelin (c) 2010")
                 except AttributeError:
                         print "Cannot add the dialog copyright"
                 try:

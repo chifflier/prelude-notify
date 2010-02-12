@@ -61,7 +61,7 @@ class NotifyNow:
         def _severity_map(self, severity):
                 urgency = None
                 imageuri = None
-                baseuri = "file://" + pnconfig.themespath + self._env.config.get("ui", "theme") + "/"
+                baseuri = "file://" + self._env.config.getThemePath() + "/"
 
                 for i in (("high", pynotify.URGENCY_CRITICAL),
                           ("medium", pynotify.URGENCY_NORMAL),

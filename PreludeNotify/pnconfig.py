@@ -1,5 +1,6 @@
 # Copyright (C) 2008 PreludeIDS Technologies. All Rights Reserved.
 # Author: Sebastien Tricaud <toady@inl.fr>
+#         Alexandre De Dommelin <adedommelin@tuxz.net>
 #
 # This file is part of the Prewikka program.
 #
@@ -24,24 +25,24 @@ from ManagerConnection import Session
 from PreludeNotify import siteconfig
 from ConfigParser import SafeConfigParser
 
-iconok = siteconfig.prefix + "/share/prelude-notify/tray/notify-ok.png"
-iconbad = siteconfig.prefix + "/share/prelude-notify/tray/notify-bad.png"
-themespath = siteconfig.prefix + "/share/prelude-notify/themes/"
+userconfigpath = "%s/.prelude-notify" % (os.getenv("HOME"))
+globalthemespath = siteconfig.prefix + "/share/prelude-notify/themes"
+userthemespath = userconfigpath + "/themes"
 
 class PnConfig(SafeConfigParser):
-        _configname = "%s/.prelude-notifyrc" % (os.getenv("HOME"))
+        _globalconfigfile = siteconfig.conf_dir + "/prelude-notify.conf"
+        _userconfigfile = userconfigpath + "/prelude-notifyrc"
 
         def __init__(self, env):
                 SafeConfigParser.__init__(self)
                 self._updated = {}
                 self.env = env
 
-                if os.path.exists(self._configname):
-                        self.read(self._configname)
+                if os.path.exists(self._userconfigfile):
+                        self.read(self._userconfigfile)
+                elif os.path.exists(self._globalconfigfile):
+                        self.read(self._globalconfigfile)
                 else:
-                        for section in "general", "idmef", "manager", "prewikka", "ui":
-                                self.add_section(section)
-
                         SafeConfigParser.set(self, "general", "threshold_timeout", "5")
                         SafeConfigParser.set(self, "general", "x11_idle_timeout", "5")
                         SafeConfigParser.set(self, "idmef", "profile", "prelude-notify")
@@ -51,7 +52,25 @@ class PnConfig(SafeConfigParser):
                         SafeConfigParser.set(self, "ui", "theme", "default")
                         SafeConfigParser.set(self, "ui", "browser", "auto")
 
-                        self.write(open(self._configname, "w"))
+
+
+		_configtheme = SafeConfigParser.get(self,"ui","theme")
+
+		if os.path.isdir( userthemespath + "/" + _configtheme ):
+			self.theme = userthemespath + "/" + _configtheme
+		elif os.path.isdir( globalthemespath + "/" +  _configtheme ):
+			self.theme = globalthemespath + "/" + _configtheme
+		else:
+			self.theme = globalthemespath + "/" + "default"
+
+	def getIconOk(self):
+		return self.theme + "/tray/notify-ok.png"
+
+	def getIconBad(self):
+		return self.theme + "/tray/notify-bad.png"
+
+	def getThemePath(self):
+		return self.theme
 
         def set(self, section, key, value):
                 old = SafeConfigParser.get(self, section, key)
@@ -89,5 +108,7 @@ class PnConfig(SafeConfigParser):
                 except:
                         self._updated = {}
                         return
+                if not os.path.isdir( userconfigpath ):
+			                  os.mkdir( userconfigpath )
 
-                self.write(open(self._configname, "w"))
+                self.write(open(self._userconfigfile, "w"))
